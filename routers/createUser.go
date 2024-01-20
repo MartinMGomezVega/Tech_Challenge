@@ -56,7 +56,7 @@ func CreateUser(ctx context.Context) models.ResposeAPI {
 	}
 
 	r.Status = 200
-	r.Message = "Registro OK"
+	r.Message = "The user was successfully created."
 	fmt.Println(r.Message)
 	return r
 

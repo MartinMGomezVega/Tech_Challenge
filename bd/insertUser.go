@@ -13,7 +13,7 @@ func InsertUser(u models.User) (string, bool, error) {
 	defer cancel()
 
 	db := MongoCN.Database(DatabaseName)
-	col := db.Collection("usuarios")
+	col := db.Collection("users")
 
 	result, err := col.InsertOne(ctx, u)
 	if err != nil {

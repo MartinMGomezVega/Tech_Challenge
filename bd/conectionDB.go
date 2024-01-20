@@ -15,13 +15,9 @@ var DatabaseName string
 // ConectBD: Conexion a la base de datos
 func ConectBD(ctx context.Context) error {
 	user := ctx.Value(models.Key("user")).(string)
-	fmt.Print("user: ", user)
 	passwd := ctx.Value(models.Key("password")).(string)
-	fmt.Print("passwd: ", passwd)
 	host := ctx.Value(models.Key("host")).(string)
-	fmt.Print("host: ", host)
 	connStr := fmt.Sprintf("mongodb+srv://%s:%s@%s/?retryWrites=true&w=majority", user, passwd, host)
-	fmt.Print("connStr: ", connStr)
 
 	var clientOptions = options.Client().ApplyURI(connStr)
 	client, err := mongo.Connect(context.TODO(), clientOptions)
