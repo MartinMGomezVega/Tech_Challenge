@@ -50,9 +50,12 @@ func ExecuteLambda(ctx context.Context, request events.APIGatewayProxyRequest) (
 
 	fmt.Println("Path completo:", request.Path)
 	fmt.Println("request.PathParameters[techchallenge]: " + request.PathParameters["techchallenge"])
+	fmt.Println("request.PathParameters[techchallengego]: " + request.PathParameters["techchallenge"])
+	fmt.Println("request.PathParameters[challenge]: " + request.PathParameters["challenge"])
+
 	fmt.Println("os.Getenv(UrlPrefix): " + os.Getenv("UrlPrefix"))
 
-	path := strings.Replace(request.PathParameters["techchallenge"], os.Getenv("UrlPrefix"), "", -1)
+	path := strings.Replace(request.PathParameters["techchallengego"], os.Getenv("UrlPrefix"), "", -1)
 	awsgo.Ctx = context.WithValue(awsgo.Ctx, models.Key("path"), path)
 	awsgo.Ctx = context.WithValue(awsgo.Ctx, models.Key("method"), request.HTTPMethod)
 	awsgo.Ctx = context.WithValue(awsgo.Ctx, models.Key("user"), SecretModel.Username)
