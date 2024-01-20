@@ -36,10 +36,18 @@ func UploadTransactionFile(ctx context.Context, request events.APIGatewayProxyRe
 	// Get filename from the body of the request
 	fileName := strings.TrimSuffix(request.PathParameters["fileName"], ".csv")
 
+	// Load Mexico's time zone
+	location, err := time.LoadLocation("America/Mexico_City")
+	if err != nil {
+		r.Status = 500
+		r.Message = err.Error()
+		return r
+	}
+
 	// Generate full filename with current date and time
-	now := time.Now().In(time.FixedZone("America/Mexico_City", -6)) // Mexico Time
+	now := time.Now().In(location) // Mexico Time
 	filename := fmt.Sprintf("transactions/%s_%s_%s.csv", fileName, now.Format("02012006"), now.Format("030405PM"))
-	fmt.Printf("Name of the file with the transactions: %s\n", fileName)
+	fmt.Printf("Name of the file with the transactions: %s\n", filename)
 
 	mediaType, params, err := mime.ParseMediaType(request.Headers["Content-Type"])
 	if err != nil {
