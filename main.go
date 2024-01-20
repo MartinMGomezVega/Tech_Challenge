@@ -2,7 +2,6 @@ package main
 
 import (
 	"context"
-	"fmt"
 	"os"
 	"strings"
 
@@ -10,6 +9,10 @@ import (
 	"github.com/aws/aws-lambda-go/lambda"
 
 	"github.com/MartinMGomezVega/Tech_Challenge/awsgo"
+	"github.com/MartinMGomezVega/Tech_Challenge/bd"
+	"github.com/MartinMGomezVega/Tech_Challenge/handlers"
+	"github.com/MartinMGomezVega/Tech_Challenge/models"
+	"github.com/MartinMGomezVega/Tech_Challenge/secretmanager"
 )
 
 func main() {
@@ -43,25 +46,31 @@ func ExecuteLambda(ctx context.Context, request events.APIGatewayProxyRequest) (
 		return res, nil
 	}
 
-	path := strings.Replace(request.PathParameters["twitter"], os.Getenv("UrlPrefix"), "", -1)
-
+	path := strings.Replace(request.PathParameters["TestChallenge"], os.Getenv("UrlPrefix"), "", -1)
 	awsgo.Ctx = context.WithValue(awsgo.Ctx, models.Key("path"), path)
 	awsgo.Ctx = context.WithValue(awsgo.Ctx, models.Key("method"), request.HTTPMethod)
 	awsgo.Ctx = context.WithValue(awsgo.Ctx, models.Key("user"), SecretModel.Username)
 	awsgo.Ctx = context.WithValue(awsgo.Ctx, models.Key("password"), SecretModel.Password)
 	awsgo.Ctx = context.WithValue(awsgo.Ctx, models.Key("host"), SecretModel.Host)
 	awsgo.Ctx = context.WithValue(awsgo.Ctx, models.Key("database"), SecretModel.Database)
-	awsgo.Ctx = context.WithValue(awsgo.Ctx, models.Key("jwtSign"), SecretModel.JWTSign)
 	awsgo.Ctx = context.WithValue(awsgo.Ctx, models.Key("body"), request.Body)
 	awsgo.Ctx = context.WithValue(awsgo.Ctx, models.Key("bucketName"), os.Getenv("BucketName"))
 
 	// Chequeo Conexión a la BD o Conecto la BD
+	err = bd.ConectBD(awsgo.Ctx)
+	if err != nil {
+		res = &events.APIGatewayProxyResponse{
+			StatusCode: 500,
+			Body:       "Error connecting to DB: " + err.Error(),
+			Headers: map[string]string{
+				"Content-Type": "application/json",
+			},
+		}
+		return res, nil
+	}
 
-	bd.ConectarBD(awsgo.Ctx)
+	respAPI := handlers.Handlers(awsgo.Ctx, request)
 
-	respAPI := handlers.Manejadores(awsgo.Ctx, request)
-
-	fmt.Println("Sali de Manejadores")
 	if respAPI.CustomResp == nil {
 		headersResp := map[string]string{
 			"Content-Type": "application/json",
@@ -71,6 +80,7 @@ func ExecuteLambda(ctx context.Context, request events.APIGatewayProxyRequest) (
 			Body:       string(respAPI.Message),
 			Headers:    headersResp,
 		}
+
 		return res, nil
 	} else {
 		return respAPI.CustomResp, nil

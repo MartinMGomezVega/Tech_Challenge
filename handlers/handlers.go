@@ -1,26 +1,69 @@
 package handlers
 
 import (
-	"log"
-	"net/http"
-	"os"
+	"context"
+	"fmt"
 
-	"github.com/gorilla/mux"
-	"github.com/rs/cors"
+	"github.com/aws/aws-lambda-go/events"
+	// "github.com/ptilotta/twittor/jwt"
+	"github.com/MartinMGomezVega/Tech_Challenge/models"
+	"github.com/MartinMGomezVega/Tech_Challenge/routers"
 )
 
-// drivers: Setear el puerto y escuchar el servidor (se encarga de manejar las solicitudes HTTP que llegan al servidor)
-func Drivers() {
-	router := mux.NewRouter() // Devuelve informacion del router
+func Handlers(ctx context.Context, request events.APIGatewayProxyRequest) models.ResposeAPI {
 
-	// abrir el puerto
-	PORT := os.Getenv("PORT")
-	if PORT == "" {
-		PORT = "8080"
+	fmt.Println("Processing: " + ctx.Value(models.Key("path")).(string) + " > " + ctx.Value(models.Key("method")).(string))
+
+	var r models.ResposeAPI
+	r.Status = 400
+
+	switch ctx.Value(models.Key("method")).(string) {
+	case "POST":
+		switch ctx.Value(models.Key("path")).(string) {
+		case "uploadTransactionFile":
+			return routers.UploadTransactionFile(ctx)
+
+		case "sendEmail":
+			return routers.SendEmail(ctx)
+			// case "tweet": // listo
+			// 	return routers.GraboTweet(ctx, claim)
+			// case "altaRelacion": // listo
+			// 	return routers.AltaRelacion(ctx, request, claim)
+			// case "subirAvatar": // listo
+			// 	return routers.UploadImage(ctx, "A", request, claim)
+			// case "subirBanner": // listo
+			// 	return routers.UploadImage(ctx, "B", request, claim)
+		}
+
+	case "GET":
+		switch ctx.Value(models.Key("path")).(string) {
+		// case "verperfil": // listo
+		// 	return routers.VerPerfil(request)
+		// case "leoTweets": // listo
+		// 	return routers.LeoTweets(request)
+		// case "consultaRelacion": // listo
+		// 	return routers.ConsultaRelacion(request, claim)
+		// case "listaUsuarios": // listo
+		// 	return routers.ListaUsuarios(request, claim)
+		// case "leoTweetsSeguidores": // listo
+		// 	return routers.LeoTweetsSeguidores(request, claim)
+		// case "obtenerAvatar": // listo
+		// 	return routers.ObtenerImagen(ctx, "A", request, claim)
+		// case "obtenerBanner": // listo
+		// 	return routers.ObtenerImagen(ctx, "B", request, claim)
+		}
+
+	case "PUT":
+		switch ctx.Value(models.Key("path")).(string) {
+		// case "modificarPerfil": // listo
+		// 	return routers.ModificarPerfil(ctx, claim)
+		}
+
+	case "DELETE":
+		//
 	}
 
-	// Creando un handler/importacion
-	// Los cors son quienes otorgan los permisos
-	handler := cors.AllowAll().Handler(router)        // Todos pueden acceder
-	log.Fatal(http.ListenAndServe(":"+PORT, handler)) // Escucha el puerto
+	r.Status = 400
+	r.Message = "Method Invalid"
+	return r
 }

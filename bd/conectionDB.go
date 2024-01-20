@@ -2,46 +2,46 @@ package bd
 
 import (
 	"context"
-	"log"
+	"fmt"
 
+	"github.com/MartinMGomezVega/Tech_Challenge/models"
 	"go.mongodb.org/mongo-driver/mongo"
 	"go.mongodb.org/mongo-driver/mongo/options"
 )
 
-var MongoConnect = conectBD()
+var MongoCN *mongo.Client
+var DatabaseName string
 
-// clientOptions: URL de la base de datos
-var clientOptions = options.Client().ApplyURI("mongodb://MartinGomezVega:6hd3TlXoIbJpolfg@ac-jkru0ds-shard-00-00.3ph7abi.mongodb.net:27017,ac-jkru0ds-shard-00-01.3ph7abi.mongodb.net:27017,ac-jkru0ds-shard-00-02.3ph7abi.mongodb.net:27017/test?replicaSet=atlas-n1jjt3-shard-0&ssl=true&authSource=Cluster-Tesis&authMechanism=SCRAM-SHA-1")
+// ConectBD: Conexion a la base de datos
+func ConectBD(ctx context.Context) error {
 
-// conectBD: Conexion a la base de datos
-func conectBD() *mongo.Client {
+	user := ctx.Value(models.Key("user")).(string)
+	passwd := ctx.Value(models.Key("password")).(string)
+	host := ctx.Value(models.Key("host")).(string)
+	connStr := fmt.Sprintf("mongodb+srv://%s:%s@%s/?retryWrites=true&w=majority", user, passwd, host)
+
+	var clientOptions = options.Client().ApplyURI(connStr)
 	client, err := mongo.Connect(context.TODO(), clientOptions)
-
-	// Si hay error en la conexion:
 	if err != nil {
-		log.Fatal(err.Error())
-		return client
+		fmt.Println(err.Error())
+		return err
 	}
 
-	// Saber si la base de datos está ON
-	err = client.Ping(context.TODO(), nil) // Hace otro tipo de comprobaciones
+	err = client.Ping(context.TODO(), nil)
 	if err != nil {
-		log.Fatal(err.Error())
-		return client
+		fmt.Println(err.Error())
+		return err
 	}
 
-	log.Println("¡Conexión exitosa a la base de datos de MongoDB!")
-	return client
+	fmt.Println("Successful connection to the DB.")
+	MongoCN = client
+	db := ctx.Value(models.Key("database")).(string)
+	DatabaseName = string(db)
+
+	return nil
 }
 
-// CheckConnection: checkeo de la conexión a la base de datos
-func CheckConnection() bool {
-	err := MongoConnect.Ping(context.TODO(), nil)
-	if err != nil {
-		log.Fatal(err.Error())
-		// con error
-		return false
-	}
-	// Sin error
-	return true
+func BaseConnected() bool {
+	err := MongoCN.Ping(context.TODO(), nil)
+	return err == nil
 }
