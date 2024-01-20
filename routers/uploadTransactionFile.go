@@ -32,12 +32,13 @@ func UploadTransactionFile(ctx context.Context, request events.APIGatewayProxyRe
 	r.Status = 400
 
 	bucket := aws.String(ctx.Value(models.Key("bucketName")).(string))
-	fmt.Println("bucket: ", bucket)
 
-	// Generate filename with current date and time
-	now := time.Now()
-	filename := fmt.Sprintf("transactions/%s.csv", now.Format("20060102_150405"))
-	fmt.Println("filename: ", filename)
+	// Get filename from the body of the request
+	fileName := strings.TrimSuffix(request.PathParameters["fileName"], ".csv")
+
+	// Generate full filename with current date and time
+	now := time.Now().In(time.FixedZone("America/Mexico_City", -6)) // Mexico Time
+	filename := fmt.Sprintf("%s_%s_%s.csv", fileName, now.Format("02012006"), now.Format("150405"))
 
 	mediaType, params, err := mime.ParseMediaType(request.Headers["Content-Type"])
 	if err != nil {
