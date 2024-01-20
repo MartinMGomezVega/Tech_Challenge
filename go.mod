@@ -21,10 +21,12 @@ require (
 	github.com/aws/aws-sdk-go-v2/service/ssooidc v1.21.7 // indirect
 	github.com/aws/aws-sdk-go-v2/service/sts v1.26.7 // indirect
 	github.com/aws/smithy-go v1.19.0 // indirect
+	github.com/jmespath/go-jmespath v0.4.0 // indirect
 )
 
 require (
 	github.com/aws/aws-lambda-go v1.45.0 // indirect
+	github.com/aws/aws-sdk-go v1.50.0
 	github.com/aws/aws-sdk-go-v2/config v1.26.5
 	github.com/aws/aws-sdk-go-v2/service/secretsmanager v1.26.2
 	github.com/golang-jwt/jwt/v5 v5.2.0
@@ -37,5 +39,5 @@ require (
 	github.com/youmark/pkcs8 v0.0.0-20181117223130-1be2e3e5546d // indirect
 	golang.org/x/crypto v0.0.0-20220622213112-05595931fe9d // indirect
 	golang.org/x/sync v0.0.0-20220722155255-886fb9371eb4 // indirect
-	golang.org/x/text v0.7.0 // indirect
+	golang.org/x/text v0.13.0 // indirect
 )

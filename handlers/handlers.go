@@ -29,8 +29,8 @@ func Handlers(ctx context.Context, request events.APIGatewayProxyRequest) models
 		case "createUser":
 			return routers.CreateUser(ctx)
 
-			// case "uploadTransactionFile":
-			// 	return routers.UploadTransactionFile(ctx)
+		case "uploadTransactionFile":
+			return routers.UploadTransactionFile(ctx, request)
 
 			// case "storeTransactionsInDB":
 			// 	return routers.StoreTransactionsInDB(ctx)
