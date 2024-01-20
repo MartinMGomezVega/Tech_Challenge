@@ -34,8 +34,8 @@ func UploadTransactionFile(ctx context.Context, request events.APIGatewayProxyRe
 	bucket := aws.String(ctx.Value(models.Key("bucketName")).(string))
 
 	// Get filename from the body of the request
-	fileName := strings.TrimSuffix(request.PathParameters["fileName"], ".csv")
-	fmt.Println("Path Parameters:", request.PathParameters)
+	fmt.Println("request.Body:", request.Body)
+	fileName := strings.TrimSuffix(request.Body, ".csv")
 
 	// Load Mexico's time zone
 	location, err := time.LoadLocation("America/Mexico_City")
