@@ -7,6 +7,7 @@ import (
 	"io"
 	"mime"
 	"mime/multipart"
+	"regexp"
 	"strings"
 	"time"
 
@@ -34,7 +35,7 @@ func UploadTransactionFile(ctx context.Context, request events.APIGatewayProxyRe
 	bucket := aws.String(ctx.Value(models.Key("bucketName")).(string))
 
 	// Get filename from the body of the request
-	fileName := strings.TrimSuffix(request.PathParameters["filename"], ".csv")
+	fileName := extractFileNameFromFormData(request.Body)
 
 	// Load Mexico's time zone
 	location, err := time.LoadLocation("America/Mexico_City")
@@ -106,4 +107,17 @@ func UploadTransactionFile(ctx context.Context, request events.APIGatewayProxyRe
 	r.Status = 200
 	r.Message = "CSV file successfully uploaded."
 	return r
+}
+
+// extractFileNameFromFormData: Extracts the filename of a multipart form request
+func extractFileNameFromFormData(body string) string {
+	// Buscar el patrón 'filename="NombreDelArchivo"'
+	pattern := `filename="([^"]+)"`
+	matches := regexp.MustCompile(pattern).FindStringSubmatch(body)
+
+	if len(matches) >= 2 {
+		return matches[1]
+	}
+
+	return ""
 }
