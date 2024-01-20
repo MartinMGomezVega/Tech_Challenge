@@ -43,26 +43,16 @@ func ExecuteLambda(ctx context.Context, request events.APIGatewayProxyRequest) (
 		return res, nil
 	}
 
-	for key, value := range request.PathParameters {
-		fmt.Printf("Key: %s, Value: %v\n", key, value)
-	}
-
 	path := strings.Replace(request.PathParameters["techchallengego"], os.Getenv("UrlPrefix"), "", -1)
-	fmt.Println("request.PathParameters[challenge]: " + path)
 	awsgo.Ctx = context.WithValue(awsgo.Ctx, models.Key("path"), path)
-	fmt.Println("request.HTTPMethod: " + request.HTTPMethod)
 	awsgo.Ctx = context.WithValue(awsgo.Ctx, models.Key("method"), request.HTTPMethod)
-	fmt.Println("SecretModel.Username: " + SecretModel.Username)
 	awsgo.Ctx = context.WithValue(awsgo.Ctx, models.Key("user"), SecretModel.Username)
-	fmt.Println("SecretModel.Host: " + SecretModel.Host)
 	awsgo.Ctx = context.WithValue(awsgo.Ctx, models.Key("host"), SecretModel.Host)
-	fmt.Println(" SecretModel.Database: " + SecretModel.Database)
 	awsgo.Ctx = context.WithValue(awsgo.Ctx, models.Key("database"), SecretModel.Database)
-	fmt.Println("request.HTTPMethod: " + request.Body)
 	awsgo.Ctx = context.WithValue(awsgo.Ctx, models.Key("body"), request.Body)
-	fmt.Println("request.HTTPMethod: " + os.Getenv("BucketName"))
 	awsgo.Ctx = context.WithValue(awsgo.Ctx, models.Key("bucketName"), os.Getenv("BucketName"))
 
+	fmt.Printf("Conectando a la DB...")
 	// Chequeo Conexión a la BD o Conecto la BD
 	err = bd.ConectBD(awsgo.Ctx)
 	if err != nil {
