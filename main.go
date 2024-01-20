@@ -53,18 +53,20 @@ func ExecuteLambda(ctx context.Context, request events.APIGatewayProxyRequest) (
 	awsgo.Ctx = context.WithValue(awsgo.Ctx, models.Key("body"), request.Body)
 	awsgo.Ctx = context.WithValue(awsgo.Ctx, models.Key("bucketName"), os.Getenv("BucketName"))
 
-	fmt.Printf("Conectando a la DB...")
-	// Chequeo Conexión a la BD o Conecto la BD
-	err = bd.ConectBD(awsgo.Ctx)
-	if err != nil {
-		res = &events.APIGatewayProxyResponse{
-			StatusCode: 500,
-			Body:       "Error connecting to DB: " + err.Error(),
-			Headers: map[string]string{
-				"Content-Type": "application/json",
-			},
+	if ctx.Value(models.Key("path")) != "uploadTransactionFile" {
+		fmt.Println("Conectando a la DB...")
+		// Chequeo Conexión a la BD o Conecto la BD
+		err = bd.ConectBD(awsgo.Ctx)
+		if err != nil {
+			res = &events.APIGatewayProxyResponse{
+				StatusCode: 500,
+				Body:       "Error connecting to DB: " + err.Error(),
+				Headers: map[string]string{
+					"Content-Type": "application/json",
+				},
+			}
+			return res, nil
 		}
-		return res, nil
 	}
 
 	respAPI := handlers.Handlers(awsgo.Ctx, request)

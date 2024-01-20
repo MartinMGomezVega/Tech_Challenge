@@ -27,14 +27,17 @@ func (rs *readSeeker) Seek(offset int64, whence int) (int64, error) {
 }
 
 func UploadTransactionFile(ctx context.Context, request events.APIGatewayProxyRequest) models.ResposeAPI {
+	fmt.Println("Saving file...")
 	var r models.ResposeAPI
 	r.Status = 400
 
 	bucket := aws.String(ctx.Value(models.Key("bucketName")).(string))
+	fmt.Println("bucket: ", bucket)
 
 	// Generate filename with current date and time
 	now := time.Now()
 	filename := fmt.Sprintf("transactions/%s.csv", now.Format("20060102_150405"))
+	fmt.Println("filename: ", filename)
 
 	mediaType, params, err := mime.ParseMediaType(request.Headers["Content-Type"])
 	if err != nil {
