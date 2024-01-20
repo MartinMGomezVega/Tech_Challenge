@@ -38,7 +38,8 @@ func UploadTransactionFile(ctx context.Context, request events.APIGatewayProxyRe
 
 	// Generate full filename with current date and time
 	now := time.Now().In(time.FixedZone("America/Mexico_City", -6)) // Mexico Time
-	filename := fmt.Sprintf("%s_%s_%s.csv", fileName, now.Format("02012006"), now.Format("150405"))
+	filename := fmt.Sprintf("transactions/%s_%s_%s.csv", fileName, now.Format("02012006"), now.Format("030405PM"))
+	fmt.Printf("Name of the file with the transactions: %s\n", fileName)
 
 	mediaType, params, err := mime.ParseMediaType(request.Headers["Content-Type"])
 	if err != nil {
