@@ -4,10 +4,9 @@ import (
 	"context"
 	"fmt"
 
-	"github.com/aws/aws-lambda-go/events"
-	// "github.com/ptilotta/twittor/jwt"
 	"github.com/MartinMGomezVega/Tech_Challenge/models"
 	"github.com/MartinMGomezVega/Tech_Challenge/routers"
+	"github.com/aws/aws-lambda-go/events"
 )
 
 func Handlers(ctx context.Context, request events.APIGatewayProxyRequest) models.ResposeAPI {
