@@ -7,7 +7,6 @@ import (
 	"io"
 	"mime"
 	"mime/multipart"
-	"regexp"
 	"strings"
 	"time"
 
@@ -34,22 +33,6 @@ func UploadTransactionFile(ctx context.Context, request events.APIGatewayProxyRe
 
 	bucket := aws.String(ctx.Value(models.Key("bucketName")).(string))
 
-	// Get filename from the body of the request
-	fileName := extractFileNameFromFormData(request.Body)
-
-	// Load Mexico's time zone
-	location, err := time.LoadLocation("America/Mexico_City")
-	if err != nil {
-		r.Status = 500
-		r.Message = err.Error()
-		return r
-	}
-
-	// Generate full filename with current date and time
-	now := time.Now().In(location) // Mexico Time
-	filename := fmt.Sprintf("transactions/%s_%s_%s.csv", fileName, now.Format("02012006"), now.Format("030405PM"))
-	fmt.Printf("Name of the file with the transactions: %s\n", filename)
-
 	mediaType, params, err := mime.ParseMediaType(request.Headers["Content-Type"])
 	if err != nil {
 		r.Status = 500
@@ -67,7 +50,6 @@ func UploadTransactionFile(ctx context.Context, request events.APIGatewayProxyRe
 		}
 		if err != io.EOF {
 			if p.FileName() != "" {
-				fmt.Println("FileName: ", p.FileName())
 				buf := bytes.NewBuffer(nil)
 				if _, err := io.Copy(buf, p); err != nil {
 					r.Status = 500
@@ -84,6 +66,20 @@ func UploadTransactionFile(ctx context.Context, request events.APIGatewayProxyRe
 					r.Message = err.Error()
 					return r
 				}
+
+				fileName := strings.TrimSuffix(p.FileName(), ".csv")
+				// Load Mexico's time zone
+				location, err := time.LoadLocation("America/Mexico_City")
+				if err != nil {
+					r.Status = 500
+					r.Message = err.Error()
+					return r
+				}
+
+				// Generate full filename with current date and time
+				now := time.Now().In(location) // Mexico Time
+				filename := fmt.Sprintf("transactions/%s_%s_%s.csv", fileName, now.Format("02012006"), now.Format("030405PM"))
+				fmt.Printf("Name of the file with the transactions: %s\n", filename)
 
 				uploader := s3manager.NewUploader(sess)
 				_, err = uploader.Upload(&s3manager.UploadInput{
@@ -108,17 +104,4 @@ func UploadTransactionFile(ctx context.Context, request events.APIGatewayProxyRe
 	r.Status = 200
 	r.Message = "CSV file successfully uploaded."
 	return r
-}
-
-// extractFileNameFromFormData: Extracts the filename of a multipart form request
-func extractFileNameFromFormData(body string) string {
-	// Buscar el patrón 'filename="NombreDelArchivo"'
-	pattern := `filename="([^"]+)"`
-	matches := regexp.MustCompile(pattern).FindStringSubmatch(body)
-
-	if len(matches) >= 2 {
-		return matches[1]
-	}
-
-	return ""
 }
