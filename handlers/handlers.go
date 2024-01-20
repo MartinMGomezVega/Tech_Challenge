@@ -16,46 +16,33 @@ func Handlers(ctx context.Context, request events.APIGatewayProxyRequest) models
 	var r models.ResposeAPI
 	r.Status = 400
 
+	isOk, statusCode, msg := validateAuthorization(ctx, request)
+	if !isOk {
+		r.Status = statusCode
+		r.Message = msg
+		return r
+	}
+
 	switch ctx.Value(models.Key("method")).(string) {
 	case "POST":
 		switch ctx.Value(models.Key("path")).(string) {
+		case "createUser":
+			return routers.CreateUser(ctx)
+
 		case "uploadTransactionFile":
 			return routers.UploadTransactionFile(ctx)
-
-		case "sendEmail":
-			return routers.SendEmail(ctx)
 
 		case "storeTransactionsInDB":
 			return routers.StoreTransactionsInDB(ctx)
 
-		case "createUser":
-			return routers.CreateUser(ctx)
+		case "sendEmail":
+			return routers.SendEmail(ctx)
 		}
 
 	case "GET":
-		switch ctx.Value(models.Key("path")).(string) {
-		// case "verperfil": // listo
-		// 	return routers.VerPerfil(request)
-		// case "leoTweets": // listo
-		// 	return routers.LeoTweets(request)
-		// case "consultaRelacion": // listo
-		// 	return routers.ConsultaRelacion(request, claim)
-		// case "listaUsuarios": // listo
-		// 	return routers.ListaUsuarios(request, claim)
-		// case "leoTweetsSeguidores": // listo
-		// 	return routers.LeoTweetsSeguidores(request, claim)
-		// case "obtenerAvatar": // listo
-		// 	return routers.ObtenerImagen(ctx, "A", request, claim)
-		// case "obtenerBanner": // listo
-		// 	return routers.ObtenerImagen(ctx, "B", request, claim)
-		}
-
+		//
 	case "PUT":
-		switch ctx.Value(models.Key("path")).(string) {
-		// case "modificarPerfil": // listo
-		// 	return routers.ModificarPerfil(ctx, claim)
-		}
-
+		//
 	case "DELETE":
 		//
 	}
@@ -63,4 +50,13 @@ func Handlers(ctx context.Context, request events.APIGatewayProxyRequest) models
 	r.Status = 400
 	r.Message = "Method Invalid"
 	return r
+}
+
+func validateAuthorization(ctx context.Context, request events.APIGatewayProxyRequest) (bool, int, string) {
+	path := ctx.Value(models.Key("path")).(string)
+	if path == "uploadTransactionFile" || path == "sendEmail" || path == "storeTransactionsInDB" || path == "createUser" {
+		return true, 200, ""
+	}
+
+	return false, 400, "The path entered is incorrect."
 }
