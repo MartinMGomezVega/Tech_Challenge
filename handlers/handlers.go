@@ -24,14 +24,12 @@ func Handlers(ctx context.Context, request events.APIGatewayProxyRequest) models
 
 		case "sendEmail":
 			return routers.SendEmail(ctx)
-			// case "tweet": // listo
-			// 	return routers.GraboTweet(ctx, claim)
-			// case "altaRelacion": // listo
-			// 	return routers.AltaRelacion(ctx, request, claim)
-			// case "subirAvatar": // listo
-			// 	return routers.UploadImage(ctx, "A", request, claim)
-			// case "subirBanner": // listo
-			// 	return routers.UploadImage(ctx, "B", request, claim)
+
+		case "storeTransactionsInDB":
+			return routers.StoreTransactionsInDB(ctx)
+
+		case "createUser":
+			return routers.CreateUser(ctx)
 		}
 
 	case "GET":
