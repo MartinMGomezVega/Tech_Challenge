@@ -43,18 +43,6 @@ func ExecuteLambda(ctx context.Context, request events.APIGatewayProxyRequest) (
 		return res, nil
 	}
 
-	fmt.Println("Host secret: " + SecretModel.Host)
-	fmt.Println("Username secret: " + SecretModel.Username)
-	fmt.Println("Password secret: " + SecretModel.Password)
-	fmt.Println("Database secret: " + SecretModel.Database)
-
-	fmt.Println("Path completo:", request.Path)
-	fmt.Println("request.PathParameters[techchallenge]: " + request.PathParameters["techchallenge"])
-	fmt.Println("request.PathParameters[techchallengego]: " + request.PathParameters["techchallenge"])
-	fmt.Println("request.PathParameters[challenge]: " + request.PathParameters["challenge"])
-
-	fmt.Println("os.Getenv(UrlPrefix): " + os.Getenv("UrlPrefix"))
-
 	for key, value := range request.PathParameters {
 		fmt.Printf("Key: %s, Value: %v\n", key, value)
 	}
@@ -62,11 +50,17 @@ func ExecuteLambda(ctx context.Context, request events.APIGatewayProxyRequest) (
 	path := strings.Replace(request.PathParameters["techchallengego"], os.Getenv("UrlPrefix"), "", -1)
 	fmt.Println("request.PathParameters[challenge]: " + path)
 	awsgo.Ctx = context.WithValue(awsgo.Ctx, models.Key("path"), path)
+	fmt.Println("request.HTTPMethod: " + request.HTTPMethod)
 	awsgo.Ctx = context.WithValue(awsgo.Ctx, models.Key("method"), request.HTTPMethod)
+	fmt.Println("SecretModel.Username: " + SecretModel.Username)
 	awsgo.Ctx = context.WithValue(awsgo.Ctx, models.Key("user"), SecretModel.Username)
+	fmt.Println("SecretModel.Host: " + SecretModel.Host)
 	awsgo.Ctx = context.WithValue(awsgo.Ctx, models.Key("host"), SecretModel.Host)
+	fmt.Println(" SecretModel.Database: " + SecretModel.Database)
 	awsgo.Ctx = context.WithValue(awsgo.Ctx, models.Key("database"), SecretModel.Database)
+	fmt.Println("request.HTTPMethod: " + request.Body)
 	awsgo.Ctx = context.WithValue(awsgo.Ctx, models.Key("body"), request.Body)
+	fmt.Println("request.HTTPMethod: " + os.Getenv("BucketName"))
 	awsgo.Ctx = context.WithValue(awsgo.Ctx, models.Key("bucketName"), os.Getenv("BucketName"))
 
 	// Chequeo Conexión a la BD o Conecto la BD
