@@ -67,6 +67,7 @@ func UploadTransactionFile(ctx context.Context, request events.APIGatewayProxyRe
 		}
 		if err != io.EOF {
 			if p.FileName() != "" {
+				fmt.Println("FileName: ", p.FileName())
 				buf := bytes.NewBuffer(nil)
 				if _, err := io.Copy(buf, p); err != nil {
 					r.Status = 500
