@@ -78,7 +78,7 @@ func UploadTransactionFile(ctx context.Context, request events.APIGatewayProxyRe
 
 				// Generate full filename with current date and time
 				now := time.Now().In(location) // Mexico Time
-				filename := fmt.Sprintf("files/%s_%s_%s.csv", fileName, now.Format("02012006"), now.Format("030405PM"))
+				filename := fmt.Sprintf("transactions/%s_%s_%s.csv", fileName, now.Format("02012006"), now.Format("030405PM"))
 				fmt.Printf("Name of the file with the transactions: %s\n", filename)
 
 				uploader := s3manager.NewUploader(sess)

@@ -35,8 +35,8 @@ func Handlers(ctx context.Context, request events.APIGatewayProxyRequest) models
 			log.Println("Accessing UploadTransactionFile")
 			return routers.UploadTransactionFile(ctx, request)
 
-			// case "storeTransactionsInDB":
-			// 	return routers.StoreTransactionsInDB(ctx)
+		case "storeTransactionsInDB":
+			return routers.StoreTransactionsInDB(ctx)
 
 			// case "sendEmail":
 			// 	return routers.SendEmail(ctx)
