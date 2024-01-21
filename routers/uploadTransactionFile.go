@@ -12,11 +12,10 @@ import (
 	"time"
 
 	"github.com/MartinMGomezVega/Tech_Challenge/models"
+	"github.com/aws/aws-lambda-go/events"
 	"github.com/aws/aws-sdk-go/aws"
 	"github.com/aws/aws-sdk-go/aws/session"
 	"github.com/aws/aws-sdk-go/service/s3/s3manager"
-
-	"github.com/aws/aws-lambda-go/events"
 )
 
 type readSeeker struct {
@@ -41,18 +40,21 @@ func UploadTransactionFile(ctx context.Context, request events.APIGatewayProxyRe
 		r.Message = err.Error()
 		return r
 	}
-	log.Print("request.Headers[Content-Type]: " + request.Headers["Content-Type"])
 
-	// Check if the content type is multipart/form-data
 	if strings.HasPrefix(mediaType, "multipart/") {
 		mr := multipart.NewReader(strings.NewReader(request.Body), params["boundary"])
-		p, err := mr.NextPart()
-		if err != nil && err != io.EOF {
-			r.Status = 500
-			r.Message = err.Error()
-			return r
-		}
-		if err != io.EOF {
+
+		for {
+			p, err := mr.NextPart()
+			if err == io.EOF {
+				break
+			}
+			if err != nil {
+				r.Status = 500
+				r.Message = err.Error()
+				return r
+			}
+
 			if p.FileName() != "" {
 				buf := bytes.NewBuffer(nil)
 				if _, err := io.Copy(buf, p); err != nil {
@@ -72,7 +74,6 @@ func UploadTransactionFile(ctx context.Context, request events.APIGatewayProxyRe
 				}
 
 				fileName := strings.TrimSuffix(p.FileName(), ".csv")
-				// Load Mexico's time zone
 				location, err := time.LoadLocation("America/Mexico_City")
 				if err != nil {
 					r.Status = 500
@@ -80,8 +81,7 @@ func UploadTransactionFile(ctx context.Context, request events.APIGatewayProxyRe
 					return r
 				}
 
-				// Generate full filename with current date and time
-				now := time.Now().In(location) // Mexico Time
+				now := time.Now().In(location)
 				filename := fmt.Sprintf("transactions/%s_%s_%s.csv", fileName, now.Format("02012006"), now.Format("030405PM"))
 				log.Printf("Name of the file with the transactions: %s\n", filename)
 
@@ -98,11 +98,11 @@ func UploadTransactionFile(ctx context.Context, request events.APIGatewayProxyRe
 					return r
 				}
 			}
-		} else {
-			r.Status = 400
-			r.Message = "You must send a CSV file with the 'Content-Type' of type 'multipart/' in the Header."
-			return r
 		}
+	} else {
+		r.Status = 400
+		r.Message = "You must send a CSV file with the 'Content-Type' of type 'multipart/' in the Header."
+		return r
 	}
 
 	r.Status = 200
