@@ -34,7 +34,12 @@ func UploadTransactionFile(ctx context.Context, request events.APIGatewayProxyRe
 
 	log.Println("Received request from Postman:")
 	log.Println("Headers:", request.Headers)
-	log.Println("Body:", strings.NewReader(request.Body))
+	bodyContent, err := io.ReadAll(strings.NewReader(request.Body))
+	if err != nil {
+		log.Println("Error reading request body:", err)
+	} else {
+		log.Println("Body:", string(bodyContent))
+	}
 
 	bucket := aws.String(ctx.Value(models.Key("bucketName")).(string))
 
