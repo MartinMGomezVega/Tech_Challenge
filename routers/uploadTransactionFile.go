@@ -3,6 +3,7 @@ package routers
 import (
 	"bytes"
 	"context"
+	"encoding/base64"
 	"fmt"
 	"io"
 	"log"
@@ -34,11 +35,11 @@ func UploadTransactionFile(ctx context.Context, request events.APIGatewayProxyRe
 
 	log.Println("Received request from Postman:")
 	log.Println("Headers:", request.Headers)
-	bodyContent, err := io.ReadAll(strings.NewReader(request.Body))
+	decodedBody, err := base64.StdEncoding.DecodeString(request.Body)
 	if err != nil {
 		log.Println("Error reading request body:", err)
 	} else {
-		log.Println("Body:", string(bodyContent))
+		log.Println("Body:", string(decodedBody))
 	}
 
 	bucket := aws.String(ctx.Value(models.Key("bucketName")).(string))
