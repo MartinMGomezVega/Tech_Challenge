@@ -3,13 +3,11 @@ package routers
 import (
 	"bytes"
 	"context"
-	"fmt"
+	"encoding/base64"
 	"io"
-	"log"
 	"mime"
 	"mime/multipart"
 	"strings"
-	"time"
 
 	"github.com/MartinMGomezVega/Tech_Challenge/models"
 	"github.com/aws/aws-sdk-go/aws"
@@ -26,15 +24,13 @@ type readSeeker struct {
 func (rs *readSeeker) Seek(offset int64, whence int) (int64, error) {
 	return 0, nil
 }
-
 func UploadTransactionFile(ctx context.Context, request events.APIGatewayProxyRequest) models.ResposeAPI {
-	log.Println("Saving file...")
+
 	var r models.ResposeAPI
 	r.Status = 400
+	var filename string
 
 	bucket := aws.String(ctx.Value(models.Key("bucketName")).(string))
-	log.Printf("bucket name: %s\n", *bucket)
-	log.Printf("request.Headers[Content-Type]: %s\n", request.Headers["Content-Type"])
 
 	mediaType, params, err := mime.ParseMediaType(request.Headers["Content-Type"])
 	if err != nil {
@@ -42,19 +38,22 @@ func UploadTransactionFile(ctx context.Context, request events.APIGatewayProxyRe
 		r.Message = err.Error()
 		return r
 	}
-	log.Printf("boundary: %s\n", params["boundary"])
-	log.Printf("request.Body: %s\n", request.Body)
 
 	if strings.HasPrefix(mediaType, "multipart/") {
-		mr := multipart.NewReader(strings.NewReader(request.Body), params["boundary"])
-		p, err := mr.NextPart()
-
-		if err != nil && err != io.EOF {
+		body, err := base64.StdEncoding.DecodeString(request.Body)
+		if err != nil {
 			r.Status = 500
 			r.Message = err.Error()
 			return r
 		}
 
+		mr := multipart.NewReader(bytes.NewReader(body), params["boundary"])
+		p, err := mr.NextPart()
+		if err != nil && err != io.EOF {
+			r.Status = 500
+			r.Message = err.Error()
+			return r
+		}
 		if err != io.EOF {
 			if p.FileName() != "" {
 				buf := bytes.NewBuffer(nil)
@@ -63,7 +62,6 @@ func UploadTransactionFile(ctx context.Context, request events.APIGatewayProxyRe
 					r.Message = err.Error()
 					return r
 				}
-
 				sess, err := session.NewSession(&aws.Config{
 					Region: aws.String("us-east-1")},
 				)
@@ -73,20 +71,6 @@ func UploadTransactionFile(ctx context.Context, request events.APIGatewayProxyRe
 					r.Message = err.Error()
 					return r
 				}
-
-				fileName := strings.TrimSuffix(p.FileName(), ".csv")
-				// Load Mexico's time zone
-				location, err := time.LoadLocation("America/Mexico_City")
-				if err != nil {
-					r.Status = 500
-					r.Message = err.Error()
-					return r
-				}
-
-				// Generate full filename with current date and time
-				now := time.Now().In(location) // Mexico Time
-				filename := fmt.Sprintf("transactions/%s_%s_%s.csv", fileName, now.Format("02012006"), now.Format("030405PM"))
-				log.Printf("Name of the file with the transactions: %s\n", filename)
 
 				uploader := s3manager.NewUploader(sess)
 				_, err = uploader.Upload(&s3manager.UploadInput{
@@ -100,15 +84,17 @@ func UploadTransactionFile(ctx context.Context, request events.APIGatewayProxyRe
 					r.Message = err.Error()
 					return r
 				}
+
 			}
-		} else {
-			r.Status = 400
-			r.Message = "You must send a CSV file with the 'Content-Type' of type 'multipart/' in the Header."
-			return r
 		}
+
+	} else {
+		r.Status = 400
+		r.Message = "Debe enviar un archivo con el 'Content-Type' de tipo 'multipart/' en el Header"
+		return r
 	}
 
 	r.Status = 200
-	r.Message = "CSV file successfully uploaded."
+	r.Message = "archivo Upload OK"
 	return r
 }
