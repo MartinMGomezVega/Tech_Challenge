@@ -55,6 +55,7 @@ func UploadTransactionFile(ctx context.Context, request events.APIGatewayProxyRe
 		for {
 			p, err := mr.NextPart()
 			if err == io.EOF {
+				// Se alcanzó el final del cuerpo multipart
 				break
 			}
 			if err != nil {
