@@ -42,7 +42,15 @@ func UploadTransactionFile(ctx context.Context, request events.APIGatewayProxyRe
 	}
 
 	if strings.HasPrefix(mediaType, "multipart/") {
-		mr := multipart.NewReader(strings.NewReader(request.Body), params["boundary"])
+		boundary, ok := params["boundary"]
+		if !ok {
+			log.Println("Boundary not found in Content-Type header")
+			r.Status = 400
+			r.Message = "Boundary not found in Content-Type header."
+			return r
+		}
+
+		mr := multipart.NewReader(strings.NewReader(request.Body), boundary)
 
 		for {
 			p, err := mr.NextPart()
@@ -50,14 +58,18 @@ func UploadTransactionFile(ctx context.Context, request events.APIGatewayProxyRe
 				break
 			}
 			if err != nil {
+				log.Printf("Error reading part: %v\n", err)
 				r.Status = 500
 				r.Message = err.Error()
 				return r
 			}
 
+			log.Printf("Processing part: %s\n", p.FileName())
+
 			if p.FileName() != "" {
 				buf := bytes.NewBuffer(nil)
 				if _, err := io.Copy(buf, p); err != nil {
+					log.Printf("Error copying part content: %v\n", err)
 					r.Status = 500
 					r.Message = err.Error()
 					return r
@@ -68,6 +80,7 @@ func UploadTransactionFile(ctx context.Context, request events.APIGatewayProxyRe
 				)
 
 				if err != nil {
+					log.Printf("Error creating AWS session: %v\n", err)
 					r.Status = 500
 					r.Message = err.Error()
 					return r
@@ -76,6 +89,7 @@ func UploadTransactionFile(ctx context.Context, request events.APIGatewayProxyRe
 				fileName := strings.TrimSuffix(p.FileName(), ".csv")
 				location, err := time.LoadLocation("America/Mexico_City")
 				if err != nil {
+					log.Printf("Error loading time zone: %v\n", err)
 					r.Status = 500
 					r.Message = err.Error()
 					return r
@@ -93,6 +107,7 @@ func UploadTransactionFile(ctx context.Context, request events.APIGatewayProxyRe
 				})
 
 				if err != nil {
+					log.Printf("Error uploading to S3: %v\n", err)
 					r.Status = 500
 					r.Message = err.Error()
 					return r
