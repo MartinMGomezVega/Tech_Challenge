@@ -55,9 +55,10 @@ func UploadTransactionFile(ctx context.Context, request events.APIGatewayProxyRe
 		for {
 			p, err := mr.NextPart()
 			if err == io.EOF {
-				// Se alcanzó el final del cuerpo multipart
+				// The end of the multipart body was reached
 				break
 			}
+
 			if err != nil {
 				log.Printf("Error reading part: %v\n", err)
 				r.Status = 500
@@ -113,6 +114,9 @@ func UploadTransactionFile(ctx context.Context, request events.APIGatewayProxyRe
 					r.Message = err.Error()
 					return r
 				}
+
+				// Clear buf before the next iteration
+				buf.Reset()
 			}
 		}
 	} else {
