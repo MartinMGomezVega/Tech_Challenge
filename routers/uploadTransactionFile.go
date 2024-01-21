@@ -34,7 +34,7 @@ func UploadTransactionFile(ctx context.Context, request events.APIGatewayProxyRe
 
 	log.Println("Received request from Postman:")
 	log.Println("Headers:", request.Headers)
-	log.Println("Body:", request.Body)
+	log.Println("Body:", strings.NewReader(request.Body))
 
 	bucket := aws.String(ctx.Value(models.Key("bucketName")).(string))
 
