@@ -3,6 +3,7 @@ package handlers
 import (
 	"context"
 	"fmt"
+	"log"
 
 	"github.com/MartinMGomezVega/Tech_Challenge/models"
 	"github.com/MartinMGomezVega/Tech_Challenge/routers"
@@ -27,9 +28,11 @@ func Handlers(ctx context.Context, request events.APIGatewayProxyRequest) models
 	case "POST":
 		switch ctx.Value(models.Key("path")).(string) {
 		case "createUser":
+			log.Println("Accessing CreateUser")
 			return routers.CreateUser(ctx)
 
 		case "uploadTransactionFile":
+			log.Println("Accessing UploadTransactionFile")
 			return routers.UploadTransactionFile(ctx, request)
 
 			// case "storeTransactionsInDB":
