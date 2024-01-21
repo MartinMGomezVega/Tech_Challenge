@@ -16,6 +16,10 @@ import (
 	"github.com/MartinMGomezVega/Tech_Challenge/secretmanager"
 )
 
+func main() {
+	lambda.Start(ExecuteLambda)
+}
+
 func ExecuteLambda(ctx context.Context, request events.APIGatewayProxyRequest) (*events.APIGatewayProxyResponse, error) {
 	var res *events.APIGatewayProxyResponse
 	awsgo.InitialiseAWS()
@@ -85,10 +89,6 @@ func ExecuteLambda(ctx context.Context, request events.APIGatewayProxyRequest) (
 	} else {
 		return respAPI.CustomResp, nil
 	}
-}
-
-func main() {
-	lambda.Start(ExecuteLambda)
 }
 
 func ValidateParameter() bool {
