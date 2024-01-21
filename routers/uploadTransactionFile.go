@@ -32,6 +32,10 @@ func UploadTransactionFile(ctx context.Context, request events.APIGatewayProxyRe
 	var r models.ResposeAPI
 	r.Status = 400
 
+	log.Println("Received request from Postman:")
+	log.Println("Headers:", request.Headers)
+	log.Println("Body:", request.Body)
+
 	bucket := aws.String(ctx.Value(models.Key("bucketName")).(string))
 
 	mediaType, params, err := mime.ParseMediaType(request.Headers["Content-Type"])
@@ -43,24 +47,8 @@ func UploadTransactionFile(ctx context.Context, request events.APIGatewayProxyRe
 
 	if strings.HasPrefix(mediaType, "multipart/") {
 		mr := multipart.NewReader(strings.NewReader(request.Body), params["boundary"])
-		p, _ := mr.NextPart()
-
-		// Generate full filename with current date and time
-		fileName := strings.TrimSuffix(p.FileName(), ".csv")
-		// Load Mexico's time zone
-		location, err := time.LoadLocation("America/Mexico_City")
-		if err != nil {
-			log.Println("err: " + err.Error())
-			r.Status = 500
-			r.Message = err.Error()
-			return r
-		}
-		now := time.Now().In(location) // Mexico Time
-		filename := fmt.Sprintf("transactions/%s_%s_%s.csv", fileName, now.Format("02012006"), now.Format("030405PM"))
-		fmt.Printf("Name of the file with the transactions: %s\n", filename)
-
+		p, err := mr.NextPart()
 		if err != nil && err != io.EOF {
-			log.Println("err: " + err.Error())
 			r.Status = 500
 			r.Message = err.Error()
 			return r
@@ -83,6 +71,20 @@ func UploadTransactionFile(ctx context.Context, request events.APIGatewayProxyRe
 					r.Message = err.Error()
 					return r
 				}
+
+				fileName := strings.TrimSuffix(p.FileName(), ".csv")
+				// Load Mexico's time zone
+				location, err := time.LoadLocation("America/Mexico_City")
+				if err != nil {
+					r.Status = 500
+					r.Message = err.Error()
+					return r
+				}
+
+				// Generate full filename with current date and time
+				now := time.Now().In(location) // Mexico Time
+				filename := fmt.Sprintf("transactions/%s_%s_%s.csv", fileName, now.Format("02012006"), now.Format("030405PM"))
+				fmt.Printf("Name of the file with the transactions: %s\n", filename)
 
 				uploader := s3manager.NewUploader(sess)
 				_, err = uploader.Upload(&s3manager.UploadInput{

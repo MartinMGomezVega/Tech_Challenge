@@ -3,13 +3,11 @@ module github.com/MartinMGomezVega/Tech_Challenge
 go 1.19
 
 require (
-	github.com/gorilla/mux v1.8.1
-	github.com/rs/cors v1.10.1
+	github.com/aws/aws-sdk-go-v2 v1.24.1
 	go.mongodb.org/mongo-driver v1.13.1
 )
 
 require (
-	github.com/aws/aws-sdk-go-v2 v1.24.1 // indirect
 	github.com/aws/aws-sdk-go-v2/credentials v1.16.16 // indirect
 	github.com/aws/aws-sdk-go-v2/feature/ec2/imds v1.14.11 // indirect
 	github.com/aws/aws-sdk-go-v2/internal/configsources v1.2.10 // indirect
@@ -25,11 +23,10 @@ require (
 )
 
 require (
-	github.com/aws/aws-lambda-go v1.45.0 // indirect
+	github.com/aws/aws-lambda-go v1.45.0
 	github.com/aws/aws-sdk-go v1.50.0
 	github.com/aws/aws-sdk-go-v2/config v1.26.5
 	github.com/aws/aws-sdk-go-v2/service/secretsmanager v1.26.2
-	github.com/golang-jwt/jwt/v5 v5.2.0
 	github.com/golang/snappy v0.0.1 // indirect
 	github.com/klauspost/compress v1.13.6 // indirect
 	github.com/montanaflynn/stats v0.0.0-20171201202039-1bf9dbcd8cbe // indirect
