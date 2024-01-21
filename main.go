@@ -54,8 +54,8 @@ func ExecuteLambda(ctx context.Context, request events.APIGatewayProxyRequest) (
 	awsgo.Ctx = context.WithValue(awsgo.Ctx, models.Key("bucketName"), os.Getenv("BucketName"))
 
 	if (awsgo.Ctx).Value(models.Key("path")).(string) != "uploadTransactionFile" {
-		fmt.Println("Conectando a la DB...")
-		// Chequeo Conexión a la BD o Conecto la BD
+		fmt.Println("Connecting to the database...")
+		// Check DB Connection or Connect DB
 		err = bd.ConectBD(awsgo.Ctx)
 		if err != nil {
 			res = &events.APIGatewayProxyResponse{
