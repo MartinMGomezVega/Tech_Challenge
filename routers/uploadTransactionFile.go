@@ -5,6 +5,7 @@ import (
 	"context"
 	"fmt"
 	"io"
+	"log"
 	"mime"
 	"mime/multipart"
 	"strings"
@@ -27,11 +28,12 @@ func (rs *readSeeker) Seek(offset int64, whence int) (int64, error) {
 }
 
 func UploadTransactionFile(ctx context.Context, request events.APIGatewayProxyRequest) models.ResposeAPI {
-	fmt.Println("Saving file...")
+	log.Println("Saving file...")
 	var r models.ResposeAPI
 	r.Status = 400
 
 	bucket := aws.String(ctx.Value(models.Key("bucketName")).(string))
+	log.Printf("bucket name: %s\n", *bucket)
 
 	mediaType, params, err := mime.ParseMediaType(request.Headers["Content-Type"])
 	if err != nil {
@@ -79,7 +81,7 @@ func UploadTransactionFile(ctx context.Context, request events.APIGatewayProxyRe
 				// Generate full filename with current date and time
 				now := time.Now().In(location) // Mexico Time
 				filename := fmt.Sprintf("transactions/%s_%s_%s.csv", fileName, now.Format("02012006"), now.Format("030405PM"))
-				fmt.Printf("Name of the file with the transactions: %s\n", filename)
+				log.Printf("Name of the file with the transactions: %s\n", filename)
 
 				uploader := s3manager.NewUploader(sess)
 				_, err = uploader.Upload(&s3manager.UploadInput{
