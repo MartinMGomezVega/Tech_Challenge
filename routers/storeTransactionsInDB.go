@@ -2,8 +2,8 @@ package routers
 
 import (
 	"context"
-	"fmt"
-	"io/ioutil"
+	"io"
+	"log"
 
 	"github.com/MartinMGomezVega/Tech_Challenge/models"
 	"github.com/aws/aws-sdk-go/aws"
@@ -12,11 +12,13 @@ import (
 )
 
 func StoreTransactionsInDB(ctx context.Context) models.ResposeAPI {
+	log.Println("Start saving transactions from S3 to MongoDB.")
 	var r models.ResposeAPI
 	r.Status = 400
 
 	folderName := "files/"
 	bucketName := aws.String(ctx.Value(models.Key("bucketName")).(string))
+	log.Println("bucketName: " + *bucketName)
 
 	sess, err := session.NewSession(&aws.Config{
 		Region: aws.String("us-east-1")},
@@ -39,7 +41,7 @@ func StoreTransactionsInDB(ctx context.Context) models.ResposeAPI {
 	if err != nil {
 		r.Status = 400
 		r.Message = "Error listing s3 bucket files."
-		fmt.Println(r.Message)
+		log.Println(r.Message)
 		return r
 	}
 
@@ -51,17 +53,17 @@ func StoreTransactionsInDB(ctx context.Context) models.ResposeAPI {
 		// Leer el contenido del objeto
 		content, err := readObjectContent(s3Client, aws.StringValue(bucketName), objectKey)
 		if err != nil {
-			fmt.Printf("Error reading object %s: %v\n", objectKey, err)
+			log.Printf("Error reading object %s: %v\n", objectKey, err)
 			continue
 		}
 
 		// Manejar el contenido leído según tus necesidades
-		fmt.Printf("Content of %s:\n%s\n", objectKey, content)
+		log.Printf("Content of %s:\n%s\n", objectKey, content)
 	}
 
 	r.Status = 200
 	r.Message = "The update of the database was a success."
-	fmt.Println(r.Message)
+	log.Println(r.Message)
 	return r
 }
 
@@ -80,7 +82,7 @@ func readObjectContent(s3Client *s3.S3, bucketName, objectKey string) (string, e
 	defer result.Body.Close()
 
 	// Leer el contenido del objeto
-	content, err := ioutil.ReadAll(result.Body)
+	content, err := io.ReadAll(result.Body)
 	if err != nil {
 		return "", err
 	}
