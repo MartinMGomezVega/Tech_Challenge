@@ -1,82 +1,103 @@
 package routers
 
 import (
+	"bytes"
 	"context"
-	"fmt"
+	"encoding/base64"
+	"io"
 	"log"
-	"os"
-	"path/filepath"
+	"mime"
+	"mime/multipart"
+	"strings"
 
 	"github.com/MartinMGomezVega/Tech_Challenge/models"
 	"github.com/aws/aws-lambda-go/events"
-	"github.com/aws/aws-sdk-go-v2/config"
-	"github.com/aws/aws-sdk-go-v2/service/s3"
 	"github.com/aws/aws-sdk-go/aws"
+	"github.com/aws/aws-sdk-go/aws/session"
+	"github.com/aws/aws-sdk-go/service/s3/s3manager"
 )
 
-type AWSService struct {
-	S3Client *s3.Client
+type readSeeker struct {
+	io.Reader
 }
 
+func (rs *readSeeker) Seek(offset int64, whence int) (int64, error) {
+	return 0, nil
+}
 func UploadTransactionFile(ctx context.Context, request events.APIGatewayProxyRequest) models.ResposeAPI {
 	log.Println("Saving file...")
 	var r models.ResposeAPI
+	r.Status = 400
 
-	bucketName := ctx.Value(models.Key("bucketName")).(string)
-	log.Println("bucket: " + bucketName)
+	var filename string
 
-	// Obtener la ruta del directorio raíz de la tarea de Lambda
-	rootDir := os.Getenv("LAMBDA_TASK_ROOT")
-	log.Println("rootDir: " + rootDir)
+	bucket := aws.String(ctx.Value(models.Key("bucketName")).(string))
 
-	// Construir la ruta completa al archivo dentro de la carpeta 'files'
-	filePath := filepath.Join(rootDir, "files", "20417027050.csv")
-	log.Println("filePath: " + filePath)
+	filename = "avatars/" + "testA" + ".jpg"
 
-	config, err := config.LoadDefaultConfig(context.TODO(), config.WithRegion("us-east-1"))
+	mediaType, params, err := mime.ParseMediaType(request.Headers["Content-Type"])
 	if err != nil {
-		log.Println("Error while loading the aws config: ", err)
-		r.Status = 400
-		r.Message = "Error while loading the aws config."
+		r.Status = 500
+		r.Message = err.Error()
 		return r
 	}
 
-	AWSService := AWSService{
-		S3Client: s3.NewFromConfig(config),
-	}
+	if strings.HasPrefix(mediaType, "multipart/") {
+		body, err := base64.StdEncoding.DecodeString(request.Body)
+		if err != nil {
+			r.Status = 500
+			r.Message = err.Error()
+			return r
+		}
 
-	r = AWSService.UploadFile(bucketName, "20417027050.csv", filePath)
+		mr := multipart.NewReader(bytes.NewReader(body), params["boundary"])
+		p, err := mr.NextPart()
+		if err != nil && err != io.EOF {
+			r.Status = 500
+			r.Message = err.Error()
+			return r
+		}
+		if err != io.EOF {
+			if p.FileName() != "" {
+				buf := bytes.NewBuffer(nil)
+				if _, err := io.Copy(buf, p); err != nil {
+					r.Status = 500
+					r.Message = err.Error()
+					return r
+				}
+				sess, err := session.NewSession(&aws.Config{
+					Region: aws.String("us-east-1")},
+				)
 
-	return r
-}
+				if err != nil {
+					r.Status = 500
+					r.Message = err.Error()
+					return r
+				}
 
-func (awsSvc AWSService) UploadFile(bucketName string, bucketKey string, filePath string) models.ResposeAPI {
-	var r models.ResposeAPI
-	file, err := os.OpenFile(filePath, os.O_RDONLY, os.ModePerm)
-	if err != nil {
-		fmt.Println(fmt.Errorf("failed to open file %q, %v", filePath, err))
+				uploader := s3manager.NewUploader(sess)
+				_, err = uploader.Upload(&s3manager.UploadInput{
+					Bucket: bucket,
+					Key:    aws.String(filename),
+					Body:   &readSeeker{buf},
+				})
+
+				if err != nil {
+					r.Status = 500
+					r.Message = err.Error()
+					return r
+				}
+
+			}
+		}
+
+	} else {
 		r.Status = 400
-		r.Message = "Failed to open file."
-		return r
-	}
-	defer file.Close()
-
-	// Upload the file content to S3
-	result, err := awsSvc.S3Client.PutObject(context.TODO(), &s3.PutObjectInput{
-		Bucket: aws.String(bucketName),
-		Key:    aws.String(bucketKey),
-		Body:   file,
-	})
-	if err != nil {
-		fmt.Println(fmt.Errorf("failed to upload file, %v", err))
-		r.Status = 400
-		r.Message = "Failed to upload file."
+		r.Message = "Debe enviar una imagen con el 'Content-Type' de tipo 'multipart/' en el Header"
 		return r
 	}
 
 	r.Status = 200
-	r.Message = "CSV file successfully uploaded."
-	fmt.Println(result)
-
+	r.Message = "Image Upload OK"
 	return r
 }
