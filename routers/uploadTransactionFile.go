@@ -39,6 +39,7 @@ func UploadTransactionFile(ctx context.Context, request events.APIGatewayProxyRe
 
 	// Obtener el nombre del archivo de la solicitud
 	fileName := request.PathParameters["filename"] // Asumiendo que el parámetro en la URL es "filename"
+	log.Println("fileName: " + fileName)
 
 	// Load Mexico's time zone
 	location, err := time.LoadLocation("America/Mexico_City")
@@ -51,7 +52,9 @@ func UploadTransactionFile(ctx context.Context, request events.APIGatewayProxyRe
 
 	// Formatear el nombre del archivo con la fecha y hora actual
 	filename := fmt.Sprintf("files/%s_%s.csv", fileName, now.Format("02012006_030405PM"))
-	r = AWSService.UploadFile(bucketName, filename, "/files/"+fileName)
+	log.Println("filename final: " + filename)
+
+	r = AWSService.UploadFile(bucketName, filename, fileName)
 
 	return r
 }
