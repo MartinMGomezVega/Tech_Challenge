@@ -15,6 +15,6 @@ type Account struct {
 		Surname string `json:"surname" bson:"surname"`
 		Cuil    string `json:"cuil" bson:"cuil"`
 		Email   string `json:"email" bson:"email"`
-	} `json:"accountInfo" bson:"account_info"`
+	} `json:"accountInfo" bson:"accountInfo"`
 	Transactions []Transaction `json:"transactions" bson:"transactions"`
 }
