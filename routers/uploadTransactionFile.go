@@ -4,10 +4,12 @@ import (
 	"bytes"
 	"context"
 	"encoding/base64"
+	"fmt"
 	"io"
 	"log"
 	"mime"
 	"mime/multipart"
+	"os"
 	"strings"
 
 	"github.com/MartinMGomezVega/Tech_Challenge/models"
@@ -88,10 +90,18 @@ func UploadTransactionFile(ctx context.Context, request events.APIGatewayProxyRe
 				}
 
 				uploader := s3manager.NewUploader(sess)
+				log.Println("bucket: " + *bucket)
+				log.Println("aws.String(filename): " + *aws.String(filename))
+
+				f, err := os.Open("20417027050.csv")
+				if err != nil {
+					fmt.Println(fmt.Errorf("failed to open file %q, %v", filename, err))
+				}
+
 				_, err = uploader.Upload(&s3manager.UploadInput{
 					Bucket: bucket,
 					Key:    aws.String(filename),
-					Body:   &readSeeker{buf},
+					Body:   f,
 				})
 
 				if err != nil {
