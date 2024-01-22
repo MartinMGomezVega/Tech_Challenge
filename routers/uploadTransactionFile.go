@@ -5,6 +5,7 @@ import (
 	"context"
 	"fmt"
 	"io"
+	"log"
 	"mime"
 	"mime/multipart"
 	"strings"
@@ -32,6 +33,9 @@ func UploadTransactionFile(ctx context.Context, request events.APIGatewayProxyRe
 	r.Status = 400
 
 	bucket := aws.String(ctx.Value(models.Key("bucketName")).(string))
+
+	body := ctx.Value(models.Key("body")).(string)
+	log.Println("Body: " + body)
 
 	mediaType, params, err := mime.ParseMediaType(request.Headers["Content-Type"])
 	if err != nil {
