@@ -8,9 +8,9 @@ import (
 
 	"github.com/MartinMGomezVega/Tech_Challenge/models"
 	"github.com/aws/aws-lambda-go/events"
+	"github.com/aws/aws-sdk-go-v2/aws"
 	"github.com/aws/aws-sdk-go-v2/config"
 	"github.com/aws/aws-sdk-go-v2/service/s3"
-	"github.com/aws/aws-sdk-go/aws"
 )
 
 type AWSService struct {
@@ -45,7 +45,7 @@ func UploadTransactionFile(ctx context.Context, request events.APIGatewayProxyRe
 	// }
 	// now := time.Now().In(location) // Mexico Time
 	// filename := fmt.Sprintf("files/20417027050_%s_%s.csv", now.Format("02012006"), now.Format("030405PM"))
-	r = AWSService.UploadFile(bucketName, "filename", "/files/20417027050.csv")
+	r = AWSService.UploadFile(bucketName, "files", "/files/20417027050.csv")
 
 	return r
 }
