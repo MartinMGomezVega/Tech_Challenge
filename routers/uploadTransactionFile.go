@@ -32,13 +32,15 @@ func UploadTransactionFile(ctx context.Context, request events.APIGatewayProxyRe
 	var filename string
 
 	bucket := aws.String(ctx.Value(models.Key("bucketName")).(string))
-	log.Println("bukcet: " + *bucket)
+	log.Println("bucket: " + *bucket)
 
-	filename = "files/" + "stori_logo" + ".png"
+	filename = "files/" + "20417027050" + ".csv"
 	log.Println("filename: " + filename)
 
 	mediaType, params, err := mime.ParseMediaType(request.Headers["Content-Type"])
 	if err != nil {
+		log.Println("error en ParseMediaType")
+
 		r.Status = 500
 		r.Message = err.Error()
 		return r
@@ -46,7 +48,11 @@ func UploadTransactionFile(ctx context.Context, request events.APIGatewayProxyRe
 
 	if strings.HasPrefix(mediaType, "multipart/") {
 		body, err := base64.StdEncoding.DecodeString(request.Body)
+		log.Println("body: " + request.Body)
+
 		if err != nil {
+			log.Println("error en DecodeString")
+
 			r.Status = 500
 			r.Message = err.Error()
 			return r
@@ -55,6 +61,8 @@ func UploadTransactionFile(ctx context.Context, request events.APIGatewayProxyRe
 		mr := multipart.NewReader(bytes.NewReader(body), params["boundary"])
 		p, err := mr.NextPart()
 		if err != nil && err != io.EOF {
+			log.Println("error en EOF")
+
 			r.Status = 500
 			r.Message = err.Error()
 			return r
@@ -63,6 +71,8 @@ func UploadTransactionFile(ctx context.Context, request events.APIGatewayProxyRe
 			if p.FileName() != "" {
 				buf := bytes.NewBuffer(nil)
 				if _, err := io.Copy(buf, p); err != nil {
+					log.Println("error en Copy")
+
 					r.Status = 500
 					r.Message = err.Error()
 					return r
@@ -85,6 +95,8 @@ func UploadTransactionFile(ctx context.Context, request events.APIGatewayProxyRe
 				})
 
 				if err != nil {
+					log.Println("error en NewUploader")
+
 					r.Status = 500
 					r.Message = err.Error()
 					return r
