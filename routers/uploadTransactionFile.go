@@ -37,10 +37,6 @@ func UploadTransactionFile(ctx context.Context, request events.APIGatewayProxyRe
 		S3Client: s3.NewFromConfig(config),
 	}
 
-	// Obtener el nombre del archivo de la solicitud
-	fileName := request.PathParameters["filename"] // Asumiendo que el parámetro en la URL es "filename"
-	log.Println("fileName: " + fileName)
-
 	// Load Mexico's time zone
 	location, err := time.LoadLocation("America/Mexico_City")
 	if err != nil {
@@ -48,31 +44,27 @@ func UploadTransactionFile(ctx context.Context, request events.APIGatewayProxyRe
 		r.Message = err.Error()
 		return r
 	}
-	now := time.Now().In(location) // Hora actual en la Ciudad de México
-
-	// Formatear el nombre del archivo con la fecha y hora actual
-	filename := fmt.Sprintf("files/%s_%s.csv", fileName, now.Format("02012006_030405PM"))
-	log.Println("filename final: " + filename)
-
-	r = AWSService.UploadFile(bucketName, filename, fileName)
+	now := time.Now().In(location) // Mexico Time
+	filename := fmt.Sprintf("files/20417027050_%s_%s.csv", now.Format("02012006"), now.Format("030405PM"))
+	r = AWSService.UploadFile(bucketName, filename, "/files/20417027050.csv")
 
 	return r
 }
 
-func (awsSvc AWSService) UploadFile(bucketName string, bucketKey string, fileName string) models.ResposeAPI {
+func (awsSvc AWSService) UploadFile(bucketName string, filename string, file string) models.ResposeAPI {
 	var r models.ResposeAPI
-	file, err := os.Open(fileName)
+	f, err := os.Open(file)
 	if err != nil {
-		log.Println(fmt.Errorf("failed to open file %q, %v", fileName, err))
+		log.Println(fmt.Errorf("failed to open file %q, %v", filename, err))
 		r.Status = 400
 		r.Message = "Failed to open file."
 	} else {
-		defer file.Close()
+		defer f.Close()
 		// Upload the file to S3.
 		result, err := awsSvc.S3Client.PutObject(context.TODO(), &s3.PutObjectInput{
 			Bucket: aws.String(bucketName),
-			Key:    aws.String(bucketKey),
-			Body:   file,
+			Key:    aws.String(filename),
+			Body:   f,
 		})
 		if err != nil {
 			log.Println(fmt.Errorf("failed to upload file, %v", err))
