@@ -32,8 +32,10 @@ func UploadTransactionFile(ctx context.Context, request events.APIGatewayProxyRe
 	var filename string
 
 	bucket := aws.String(ctx.Value(models.Key("bucketName")).(string))
+	log.Println("bukcet: " + *bucket)
 
 	filename = "files/" + "stori_logo" + ".png"
+	log.Println("filename: " + filename)
 
 	mediaType, params, err := mime.ParseMediaType(request.Headers["Content-Type"])
 	if err != nil {
