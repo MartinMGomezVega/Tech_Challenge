@@ -38,7 +38,7 @@ func UploadTransactionFile(ctx context.Context, request events.APIGatewayProxyRe
 		S3Client: s3.NewFromConfig(config),
 	}
 
-	r = AWSService.UploadFile(bucketName, "20417027050.csv", "/files/20417027050.csv")
+	r = AWSService.UploadFile(bucketName, "20417027050-test.csv", "./files/20417027050.csv")
 
 	return r
 }
