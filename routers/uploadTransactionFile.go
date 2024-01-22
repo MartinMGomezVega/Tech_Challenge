@@ -25,6 +25,18 @@ func UploadTransactionFile(ctx context.Context, request events.APIGatewayProxyRe
 	bucketName := ctx.Value(models.Key("bucketName")).(string)
 	log.Println("bucket: " + bucketName)
 
+	// Obtener la ruta del directorio actual del archivo uploadTransactionFile.go
+	dir, err := filepath.Abs(filepath.Dir(os.Args[0]))
+	if err != nil {
+		log.Println("Error getting current directory: ", err)
+		r.Status = 400
+		r.Message = "Error getting current directory."
+		return r
+	}
+
+	// Construir la ruta completa al archivo dentro de la carpeta 'files'
+	filePath := filepath.Join(dir, "files", "20417027050.csv")
+
 	config, err := config.LoadDefaultConfig(context.TODO(), config.WithRegion("us-east-1"))
 	if err != nil {
 		log.Println("Error while loading the aws config: ", err)
@@ -36,17 +48,6 @@ func UploadTransactionFile(ctx context.Context, request events.APIGatewayProxyRe
 	AWSService := AWSService{
 		S3Client: s3.NewFromConfig(config),
 	}
-
-	dir, err := filepath.Abs(filepath.Dir(os.Args[0]))
-	if err != nil {
-		log.Println("Error getting current directory: ", err)
-		r.Status = 400
-		r.Message = "Error getting current directory."
-		return r
-	}
-
-	filePath := filepath.Join(dir, "..", "files", "20417027050.csv")
-	log.Println("filePath: ", filePath)
 
 	r = AWSService.UploadFile(bucketName, "20417027050.csv", filePath)
 
