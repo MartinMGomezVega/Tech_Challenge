@@ -25,17 +25,20 @@ func UploadTransactionFile(ctx context.Context, request events.APIGatewayProxyRe
 	bucketName := ctx.Value(models.Key("bucketName")).(string)
 	log.Println("bucket: " + bucketName)
 
-	body := ctx.Value(models.Key("body")).(string)
-	log.Println("body: " + body)
-
 	config, err := config.LoadDefaultConfig(context.TODO(), config.WithRegion("us-east-1"))
 	if err != nil {
 		log.Println("Error while loading the aws config: ", err)
+		r.Status = 400
+		r.Message = "Error while loading the aws config."
+		return r
 	}
 
 	AWSService := AWSService{
 		S3Client: s3.NewFromConfig(config),
 	}
+
+	// Obtener el nombre del archivo de la solicitud
+	fileName := request.PathParameters["filename"] // Asumiendo que el parámetro en la URL es "filename"
 
 	// Load Mexico's time zone
 	location, err := time.LoadLocation("America/Mexico_City")
@@ -44,11 +47,11 @@ func UploadTransactionFile(ctx context.Context, request events.APIGatewayProxyRe
 		r.Message = err.Error()
 		return r
 	}
-	now := time.Now().In(location) // Mexico Time
-	filename := fmt.Sprintf("files/%s_%s_%s.csv", "20417027050", now.Format("02012006"), now.Format("030405PM"))
-	r = AWSService.UploadFile(bucketName, filename, "/files/20417027050.csv")
+	now := time.Now().In(location) // Hora actual en la Ciudad de México
 
-	r.Status = 200
+	// Formatear el nombre del archivo con la fecha y hora actual
+	filename := fmt.Sprintf("files/%s_%s.csv", fileName, now.Format("02012006_030405PM"))
+	r = AWSService.UploadFile(bucketName, filename, "/files/"+fileName)
 
 	return r
 }
@@ -58,6 +61,8 @@ func (awsSvc AWSService) UploadFile(bucketName string, bucketKey string, fileNam
 	file, err := os.Open(fileName)
 	if err != nil {
 		log.Println(fmt.Errorf("failed to open file %q, %v", fileName, err))
+		r.Status = 400
+		r.Message = "Failed to open file."
 	} else {
 		defer file.Close()
 		// Upload the file to S3.
