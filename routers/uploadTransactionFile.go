@@ -25,7 +25,7 @@ func UploadTransactionFile(ctx context.Context, request events.APIGatewayProxyRe
 	log.Println("bucket: " + bucketName)
 
 	// Ruta completa al archivo que deseas subir
-	filePath := "C:\\Users\\Martin\\Tech_Challenge\\files\\20417027050.csv"
+	filePath := "C:/Users/Martin/Tech_Challenge/files/20417027050.csv"
 
 	config, err := config.LoadDefaultConfig(context.TODO(), config.WithRegion("us-east-1"))
 	if err != nil {
