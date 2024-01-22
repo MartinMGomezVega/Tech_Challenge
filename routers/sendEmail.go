@@ -74,6 +74,13 @@ func SendEmail(ctx context.Context, request events.APIGatewayProxyRequest) model
 		bodyEmail += fmt.Sprintf("\tNúmero de transacciones en %s: %d\n", monthEsp, qtyTransactions)
 	}
 
+	// info extra
+	bodyEmail += "\n\nSi tienes alguna pregunta, no dudes en visitar nuestras Preguntas Frecuentes en www.storicard.com/preguntas-frecuentes"
+	bodyEmail += "Conoce más sobre nosotros en nuestro sitio web: www.storicard.com\n"
+
+	// Add the image to the background of the email
+	bodyEmail += `<img src="../img/stori_logo_2.png" style="position: fixed; bottom: 0; right: 0; width: 100%; height: auto;">`
+
 	// Email subject
 	subject := "Stori - Resumen"
 
