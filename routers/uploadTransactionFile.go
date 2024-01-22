@@ -19,7 +19,7 @@ func UploadTransactionFile(ctx context.Context, request events.APIGatewayProxyRe
 	S3.Region = "us-east-1"
 	S3.NewSession(S3.Region)
 	S3.Ls()
-	S3.Upload("/27426626956.csv", bucketName, "subido.csv")
+	S3.Upload("27426626956.csv", bucketName, "subido.csv")
 	S3.GenerateUrl(bucketName, "subido.csv")
 
 	return r
