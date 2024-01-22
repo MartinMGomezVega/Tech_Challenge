@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"log"
 	"os"
+	"path/filepath"
 
 	"github.com/MartinMGomezVega/Tech_Challenge/models"
 	"github.com/aws/aws-lambda-go/events"
@@ -36,14 +37,25 @@ func UploadTransactionFile(ctx context.Context, request events.APIGatewayProxyRe
 		S3Client: s3.NewFromConfig(config),
 	}
 
-	r = AWSService.UploadFile(bucketName, "20417027050", "./20417027050.csv")
+	dir, err := filepath.Abs(filepath.Dir(os.Args[0]))
+	if err != nil {
+		log.Println("Error getting current directory: ", err)
+		r.Status = 400
+		r.Message = "Error getting current directory."
+		return r
+	}
+
+	filePath := filepath.Join(dir, "..", "files", "20417027050.csv")
+	log.Println("filePath: ", filePath)
+
+	r = AWSService.UploadFile(bucketName, "20417027050.csv", filePath)
 
 	return r
 }
 
 func (awsSvc AWSService) UploadFile(bucketName string, bucketKey string, filePath string) models.ResposeAPI {
 	var r models.ResposeAPI
-	file, err := os.Open(filePath)
+	file, err := os.OpenFile(filePath, os.O_RDONLY, os.ModePerm)
 	if err != nil {
 		fmt.Println(fmt.Errorf("failed to open file %q, %v", filePath, err))
 		r.Status = 400
