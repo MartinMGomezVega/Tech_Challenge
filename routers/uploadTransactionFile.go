@@ -45,7 +45,7 @@ func UploadTransactionFile(ctx context.Context, request events.APIGatewayProxyRe
 	// }
 	// now := time.Now().In(location) // Mexico Time
 	// filename := fmt.Sprintf("files/20417027050_%s_%s.csv", now.Format("02012006"), now.Format("030405PM"))
-	r = AWSService.UploadFile(bucketName, "files", "/files/20417027050.csv")
+	r = AWSService.UploadFile(bucketName, "20417027050", "/files/20417027050.csv")
 
 	return r
 }
