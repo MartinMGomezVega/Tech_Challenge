@@ -5,7 +5,6 @@ import (
 	"fmt"
 	"log"
 	"os"
-	"time"
 
 	"github.com/MartinMGomezVega/Tech_Challenge/models"
 	"github.com/aws/aws-lambda-go/events"
@@ -38,15 +37,15 @@ func UploadTransactionFile(ctx context.Context, request events.APIGatewayProxyRe
 	}
 
 	// Load Mexico's time zone
-	location, err := time.LoadLocation("America/Mexico_City")
-	if err != nil {
-		r.Status = 500
-		r.Message = err.Error()
-		return r
-	}
-	now := time.Now().In(location) // Mexico Time
-	filename := fmt.Sprintf("files/20417027050_%s_%s.csv", now.Format("02012006"), now.Format("030405PM"))
-	r = AWSService.UploadFile(bucketName, filename, "/files/20417027050.csv")
+	// location, err := time.LoadLocation("America/Mexico_City")
+	// if err != nil {
+	// 	r.Status = 500
+	// 	r.Message = err.Error()
+	// 	return r
+	// }
+	// now := time.Now().In(location) // Mexico Time
+	// filename := fmt.Sprintf("files/20417027050_%s_%s.csv", now.Format("02012006"), now.Format("030405PM"))
+	r = AWSService.UploadFile(bucketName, "filename", "/files/20417027050.csv")
 
 	return r
 }
