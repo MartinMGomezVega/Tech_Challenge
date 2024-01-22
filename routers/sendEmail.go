@@ -59,12 +59,19 @@ func SendEmail(ctx context.Context, request events.APIGatewayProxyRequest) model
 
 	bodyEmail := fmt.Sprintf("¡Hola %s!\n", account.AccountInfo.Name)
 	bodyEmail += "Ya está disponible el resumen de tu cuenta.\n\n"
-	bodyEmail += fmt.Sprintf("\t"+"Saldo total: $%v", totalBalance)
+	bodyEmail += fmt.Sprintf("\t"+"Saldo total: $%v\n", totalBalance)
 
 	// Implement a cycle to iterate over months
 	transactionsByMonth := commons.CalculateTotalTransactionsByMonth(account.Transactions)
 	for month, qtyTransactions := range transactionsByMonth {
-		bodyEmail += fmt.Sprintf("\tNúmero de transacciones en %s: %d\n", month, qtyTransactions)
+		monthEsp, err := commons.GetMonthInSpanish(month)
+		if err != nil {
+			log.Println("Error getting the month in Spanish: ", err.Error())
+			r.Status = 400
+			r.Message = "Error DialAndSend: "
+			return r
+		}
+		bodyEmail += fmt.Sprintf("\tNúmero de transacciones en %s: %d\n", monthEsp, qtyTransactions)
 	}
 
 	// Email subject
