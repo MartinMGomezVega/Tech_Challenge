@@ -10,13 +10,14 @@ import (
 	"github.com/aws/aws-lambda-go/events"
 )
 
+// Handlers: entry point for the AWS Lambda function
 func Handlers(ctx context.Context, request events.APIGatewayProxyRequest) models.ResposeAPI {
-
 	fmt.Println("Processing: " + ctx.Value(models.Key("path")).(string) + " > " + ctx.Value(models.Key("method")).(string))
 
 	var r models.ResposeAPI
 	r.Status = 400
 
+	// Validate path
 	isOk, statusCode, msg := validateAuthorization(ctx, request)
 	if !isOk {
 		r.Status = statusCode
@@ -35,11 +36,8 @@ func Handlers(ctx context.Context, request events.APIGatewayProxyRequest) models
 			log.Println("Accessing UploadTransactionFile")
 			return routers.UploadTransactionFile(ctx, request)
 
-		case "storeTransactionsInDB":
-			return routers.StoreTransactionsInDB(ctx)
-
-			// case "sendEmail":
-			// 	return routers.SendEmail(ctx)
+		case "sendEmail":
+			return routers.SendEmail(ctx, request)
 		}
 
 	case "GET":
@@ -51,13 +49,14 @@ func Handlers(ctx context.Context, request events.APIGatewayProxyRequest) models
 	}
 
 	r.Status = 400
-	r.Message = "Method Invalid"
+	r.Message = "Method Invalid."
 	return r
 }
 
+// validateAuthorization: Validates the incoming path
 func validateAuthorization(ctx context.Context, request events.APIGatewayProxyRequest) (bool, int, string) {
 	path := ctx.Value(models.Key("path")).(string)
-	if path == "uploadTransactionFile" || path == "sendEmail" || path == "storeTransactionsInDB" || path == "createUser" {
+	if path == "uploadTransactionFile" || path == "sendEmail" || path == "createUser" {
 		return true, 200, ""
 	}
 

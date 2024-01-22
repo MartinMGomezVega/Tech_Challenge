@@ -1,9 +1,20 @@
 package models
 
-import "time"
-
+// Transaction: represents the information of a transaction
 type Transaction struct {
-	Cuil        string    `json:"cuil"`
-	Date        time.Time `json:"date"`
-	Transaction float64   `json:"transaction"`
+	ID     int     `json:"id" bson:"id"`
+	Date   string  `json:"date" bson:"date"`
+	Amount float64 `json:"amount" bson:"amount"`
+	Method string  `json:"method" bson:"method"`
+}
+
+// Account: represents account information with a list of transactions.
+type Account struct {
+	AccountInfo struct {
+		Name    string `json:"name" bson:"name"`
+		Surname string `json:"surname" bson:"surname"`
+		Cuil    string `json:"cuil" bson:"cuil"`
+		Email   string `json:"email" bson:"email"`
+	} `json:"accountInfo" bson:"account_info"`
+	Transactions []Transaction `json:"transactions" bson:"transactions"`
 }

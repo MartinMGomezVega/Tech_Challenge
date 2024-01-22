@@ -29,6 +29,7 @@ func ConectBD(ctx context.Context) error {
 	err = client.Ping(context.TODO(), nil)
 	if err != nil {
 		fmt.Println(err.Error())
+		client.Disconnect(context.TODO()) // Cerrar la conexión en caso de error
 		return err
 	}
 

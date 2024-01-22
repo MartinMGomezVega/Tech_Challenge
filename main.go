@@ -16,6 +16,11 @@ import (
 	"github.com/MartinMGomezVega/Tech_Challenge/secretmanager"
 )
 
+func main() {
+	lambda.Start(ExecuteLambda)
+}
+
+// ExecuteLambda: is the entry point of our Lambda function, it receives an event and executes it according to its path.
 func ExecuteLambda(ctx context.Context, request events.APIGatewayProxyRequest) (*events.APIGatewayProxyResponse, error) {
 	var res *events.APIGatewayProxyResponse
 	awsgo.InitialiseAWS()
@@ -53,20 +58,18 @@ func ExecuteLambda(ctx context.Context, request events.APIGatewayProxyRequest) (
 	awsgo.Ctx = context.WithValue(awsgo.Ctx, models.Key("body"), request.Body)
 	awsgo.Ctx = context.WithValue(awsgo.Ctx, models.Key("bucketName"), os.Getenv("BucketName"))
 
-	if (awsgo.Ctx).Value(models.Key("path")).(string) != "uploadTransactionFile" {
-		fmt.Println("Connecting to the database...")
-		// Check DB Connection or Connect DB
-		err = bd.ConectBD(awsgo.Ctx)
-		if err != nil {
-			res = &events.APIGatewayProxyResponse{
-				StatusCode: 500,
-				Body:       "Error connecting to DB: " + err.Error(),
-				Headers: map[string]string{
-					"Content-Type": "application/json",
-				},
-			}
-			return res, nil
+	fmt.Println("Connecting to the database...")
+	// Check DB Connection or Connect DB
+	err = bd.ConectBD(awsgo.Ctx)
+	if err != nil {
+		res = &events.APIGatewayProxyResponse{
+			StatusCode: 500,
+			Body:       "Error connecting to DB: " + err.Error(),
+			Headers: map[string]string{
+				"Content-Type": "application/json",
+			},
 		}
+		return res, nil
 	}
 
 	respAPI := handlers.Handlers(awsgo.Ctx, request)
@@ -87,10 +90,7 @@ func ExecuteLambda(ctx context.Context, request events.APIGatewayProxyRequest) (
 	}
 }
 
-func main() {
-	lambda.Start(ExecuteLambda)
-}
-
+// ValidateParameter: Validate lambda environment variables
 func ValidateParameter() bool {
 	_, parameter := os.LookupEnv("SecretName")
 	if !parameter {
