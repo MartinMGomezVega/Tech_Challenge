@@ -75,8 +75,8 @@ func SendEmail(ctx context.Context, request events.APIGatewayProxyRequest) model
 	}
 
 	// info extra
-	bodyEmail += "\n\nSi tienes alguna pregunta, no dudes en visitar nuestras Preguntas Frecuentes en www.storicard.com/preguntas-frecuentes"
-	bodyEmail += "Conoce más sobre nosotros en nuestro sitio web: www.storicard.com\n"
+	bodyEmail += "\n\n\nSi tienes alguna pregunta, no dudes en visitar nuestras Preguntas Frecuentes en www.storicard.com/preguntas-frecuentes\n"
+	bodyEmail += "Conoce más sobre nosotros en nuestro sitio web: www.storicard.com\n\n"
 
 	// Add the image to the background of the email
 	bodyEmail += `<img src="../img/stori_logo_2.png" style="position: fixed; bottom: 0; right: 0; width: 100%; height: auto;">`
@@ -88,7 +88,8 @@ func SendEmail(ctx context.Context, request events.APIGatewayProxyRequest) model
 	m.SetHeader("From", "valkiria.jobs@gmail.com") // Se envía desde el email de ValkirIA (mi tesis)
 	m.SetHeader("To", account.AccountInfo.Email)   // Se le envía al usuario
 	m.SetHeader("Subject", subject)
-	m.SetBody("text/plain", bodyEmail)
+	// m.SetBody("text/plain", bodyEmail)
+	m.SetBody("text/html", bodyEmail)
 
 	if err := d.DialAndSend(m); err != nil {
 		fmt.Println("Error DialAndSend: ", err.Error())
