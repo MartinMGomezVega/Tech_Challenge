@@ -8,9 +8,9 @@ import (
 
 	"github.com/MartinMGomezVega/Tech_Challenge/models"
 	"github.com/aws/aws-lambda-go/events"
+	"github.com/aws/aws-sdk-go-v2/aws"
 	"github.com/aws/aws-sdk-go-v2/config"
 	"github.com/aws/aws-sdk-go-v2/service/s3"
-	"github.com/aws/aws-sdk-go/aws"
 )
 
 type AWSService struct {
@@ -38,7 +38,7 @@ func UploadTransactionFile(ctx context.Context, request events.APIGatewayProxyRe
 		S3Client: s3.NewFromConfig(config),
 	}
 
-	r = AWSService.UploadFile(bucketName, "test.csv", "/20417027050-test.csv")
+	r = AWSService.UploadFile(bucketName, "test", "../20417027050-test.csv")
 
 	return r
 }
@@ -67,7 +67,6 @@ func (awsSvc AWSService) UploadFile(bucketName string, bucketKey string, fileNam
 			r.Message = "CSV file successfully uploaded."
 		}
 		fmt.Println(result)
-
 	}
 
 	return r
