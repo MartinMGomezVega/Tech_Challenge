@@ -2,9 +2,11 @@ package routers
 
 import (
 	"context"
+	"encoding/base64"
 	"encoding/json"
 	"fmt"
 	"log"
+	"os"
 
 	"github.com/MartinMGomezVega/Tech_Challenge/bd"
 	"github.com/MartinMGomezVega/Tech_Challenge/commons"
@@ -78,8 +80,20 @@ func SendEmail(ctx context.Context, request events.APIGatewayProxyRequest) model
 	bodyEmail += "\n\n\nSi tienes alguna pregunta, no dudes en visitar nuestras Preguntas Frecuentes en www.storicard.com/preguntas-frecuentes\n"
 	bodyEmail += "Conoce más sobre nosotros en nuestro sitio web: www.storicard.com\n\n"
 
+	// Read the content of the image
+	imagePath := "../img/stori_logo_2.png"
+	imageBytes, err := os.ReadFile(imagePath)
+	if err != nil {
+		log.Println("Error reading the image:", err)
+		r.Status = 400
+		r.Message = "Error reading the image"
+		return r
+	}
+	// Encode the image to base64
+	base64Image := base64.StdEncoding.EncodeToString(imageBytes)
+
 	// Add the image to the background of the email
-	bodyEmail += `<img src="../img/stori_logo_2.png" style="position: fixed; bottom: 0; right: 0; width: 100%; height: auto;">`
+	bodyEmail += fmt.Sprintf(`<img src="data:image/png;base64, %s" style="position: fixed; bottom: 0; right: 0; width: 100%%; height: auto;">`, base64Image)
 
 	// Email subject
 	subject := "Stori - Resumen"
