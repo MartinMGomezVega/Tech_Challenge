@@ -19,11 +19,10 @@ type AWSService struct {
 
 func UploadTransactionFile(ctx context.Context, request events.APIGatewayProxyRequest) models.ResposeAPI {
 	log.Println("Saving file...")
+	var r models.ResposeAPI
 
 	bucketName := ctx.Value(models.Key("bucketName")).(string)
 	log.Println("bucket: " + bucketName)
-
-	folder := "files"
 
 	body := ctx.Value(models.Key("body")).(string)
 	log.Println("body: " + body)
@@ -31,16 +30,16 @@ func UploadTransactionFile(ctx context.Context, request events.APIGatewayProxyRe
 	config, err := config.LoadDefaultConfig(context.TODO(), config.WithRegion("us-east-1"))
 	if err != nil {
 		log.Println("Error while loading the aws config: ", err)
+		r.Status = 400
+		r.Message = "Error while loading the aws config."
 	}
 
 	AWSService := AWSService{
 		S3Client: s3.NewFromConfig(config),
 	}
 
-	r := AWSService.UploadFile(bucketName, folder, "/files/20417027050.csv")
+	r = AWSService.UploadFile(bucketName, "20417027050.csv", "/files/20417027050.csv")
 
-	r.Status = 200
-	r.Message = "CSV file successfully uploaded."
 	return r
 }
 
@@ -49,6 +48,8 @@ func (awsSvc AWSService) UploadFile(bucketName string, bucketKey string, fileNam
 	file, err := os.Open(fileName)
 	if err != nil {
 		fmt.Println(fmt.Errorf("failed to open file %q, %v", fileName, err))
+		r.Status = 400
+		r.Message = "Failed to open file."
 	} else {
 		defer file.Close()
 		// Upload the file to S3.
@@ -59,6 +60,11 @@ func (awsSvc AWSService) UploadFile(bucketName string, bucketKey string, fileNam
 		})
 		if err != nil {
 			fmt.Println(fmt.Errorf("failed to upload file, %v", err))
+			r.Status = 400
+			r.Message = "Failed to upload file."
+		} else {
+			r.Status = 200
+			r.Message = "CSV file successfully uploaded."
 		}
 		fmt.Println(result)
 
