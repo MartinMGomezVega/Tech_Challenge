@@ -25,17 +25,11 @@ func UploadTransactionFile(ctx context.Context, request events.APIGatewayProxyRe
 	bucketName := ctx.Value(models.Key("bucketName")).(string)
 	log.Println("bucket: " + bucketName)
 
-	// Obtener la ruta del directorio actual del archivo uploadTransactionFile.go
-	dir, err := filepath.Abs(filepath.Dir(os.Args[0]))
-	if err != nil {
-		log.Println("Error getting current directory: ", err)
-		r.Status = 400
-		r.Message = "Error getting current directory."
-		return r
-	}
+	// Obtener la ruta del directorio raíz de la tarea de Lambda
+	rootDir := os.Getenv("LAMBDA_TASK_ROOT")
 
 	// Construir la ruta completa al archivo dentro de la carpeta 'files'
-	filePath := filepath.Join(dir, "files", "20417027050.csv")
+	filePath := filepath.Join(rootDir, "files", "20417027050.csv")
 
 	config, err := config.LoadDefaultConfig(context.TODO(), config.WithRegion("us-east-1"))
 	if err != nil {
