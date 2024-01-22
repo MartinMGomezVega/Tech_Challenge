@@ -79,7 +79,7 @@ func SendEmail(ctx context.Context, request events.APIGatewayProxyRequest) model
 	bodyEmail += "Conoce más sobre nosotros en nuestro sitio web: www.storicard.com\n\n"
 
 	// Add the image to the background of the email
-	bodyEmail += `<img src="../img/stori_logo.png" style="position: fixed; bottom: 0; right: 0; width: 100%; height: auto;">`
+	bodyEmail += `<img src="../img/stori_logo.png"">`
 
 	// Email subject
 	subject := "Stori - Resumen"
