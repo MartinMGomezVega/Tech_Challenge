@@ -82,12 +82,14 @@ func UploadTransactionFile(ctx context.Context, request events.APIGatewayProxyRe
 					return r
 				}
 
+				log.Println("Before uploading to S3")
 				uploader := s3manager.NewUploader(sess)
 				_, err = uploader.Upload(&s3manager.UploadInput{
 					Bucket: bucket,
 					Key:    aws.String(filename),
 					Body:   &readSeeker{buf},
 				})
+				log.Println("After uploading to S3")
 
 				if err != nil {
 					log.Println("Error uploading the file to the bucket: " + *bucket)
