@@ -4,12 +4,10 @@ import (
 	"bytes"
 	"context"
 	"encoding/base64"
-	"fmt"
 	"io"
 	"log"
 	"mime"
 	"mime/multipart"
-	"os"
 	"strings"
 
 	"github.com/MartinMGomezVega/Tech_Challenge/models"
@@ -31,18 +29,15 @@ func UploadTransactionFile(ctx context.Context, request events.APIGatewayProxyRe
 	var r models.ResposeAPI
 	r.Status = 400
 
-	var filename string
-
 	bucket := aws.String(ctx.Value(models.Key("bucketName")).(string))
 	log.Println("bucket: " + *bucket)
 
-	filename = "files/" + "20417027050" + ".csv"
+	filename := "files/" + "20417027050" + ".csv"
 	log.Println("filename: " + filename)
 
 	mediaType, params, err := mime.ParseMediaType(request.Headers["Content-Type"])
 	if err != nil {
-		log.Println("error en ParseMediaType")
-
+		log.Println("Error in parsing content type.")
 		r.Status = 500
 		r.Message = err.Error()
 		return r
@@ -50,11 +45,8 @@ func UploadTransactionFile(ctx context.Context, request events.APIGatewayProxyRe
 
 	if strings.HasPrefix(mediaType, "multipart/") {
 		body, err := base64.StdEncoding.DecodeString(request.Body)
-		log.Println("body: " + request.Body)
-
 		if err != nil {
-			log.Println("error en DecodeString")
-
+			log.Println("Error processing multipart data.")
 			r.Status = 500
 			r.Message = err.Error()
 			return r
@@ -63,8 +55,6 @@ func UploadTransactionFile(ctx context.Context, request events.APIGatewayProxyRe
 		mr := multipart.NewReader(bytes.NewReader(body), params["boundary"])
 		p, err := mr.NextPart()
 		if err != nil && err != io.EOF {
-			log.Println("error en EOF")
-
 			r.Status = 500
 			r.Message = err.Error()
 			return r
@@ -73,8 +63,6 @@ func UploadTransactionFile(ctx context.Context, request events.APIGatewayProxyRe
 			if p.FileName() != "" {
 				buf := bytes.NewBuffer(nil)
 				if _, err := io.Copy(buf, p); err != nil {
-					log.Println("error en Copy")
-
 					r.Status = 500
 					r.Message = err.Error()
 					return r
@@ -84,29 +72,21 @@ func UploadTransactionFile(ctx context.Context, request events.APIGatewayProxyRe
 				)
 
 				if err != nil {
+					log.Println("Error logging into aws.")
 					r.Status = 500
 					r.Message = err.Error()
 					return r
 				}
 
 				uploader := s3manager.NewUploader(sess)
-				log.Println("bucket: " + *bucket)
-				log.Println("aws.String(filename): " + *aws.String(filename))
-
-				f, err := os.Open("20417027050.csv")
-				if err != nil {
-					fmt.Println(fmt.Errorf("failed to open file %q, %v", filename, err))
-				}
-
 				_, err = uploader.Upload(&s3manager.UploadInput{
 					Bucket: bucket,
 					Key:    aws.String(filename),
-					Body:   f,
+					Body:   &readSeeker{buf},
 				})
 
 				if err != nil {
-					log.Println("error en NewUploader")
-
+					log.Println("Error uploading the file to the bucket: " + *bucket)
 					r.Status = 500
 					r.Message = err.Error()
 					return r
@@ -117,7 +97,7 @@ func UploadTransactionFile(ctx context.Context, request events.APIGatewayProxyRe
 
 	} else {
 		r.Status = 400
-		r.Message = "Debe enviar una imagen con el 'Content-Type' de tipo 'multipart/' en el Header"
+		r.Message = "You must send a csv with the 'Content-Type' of type 'multipart/' in the Header."
 		return r
 	}
 
