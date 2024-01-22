@@ -20,17 +20,17 @@ func GetAccountByCuil(cuil string) (models.Account, error) {
 	col := db.Collection("transactions")
 
 	// Define el filtro para buscar por cuil
-	filter := bson.M{"account_info.cuil": cuil}
+	filter := bson.M{"accountInfo.cuil": cuil}
 
 	var account models.Account
 	err := col.FindOne(ctx, filter).Decode(&account)
 	if err != nil {
 		if err == mongo.ErrNoDocuments {
-			log.Printf("No se encontró ninguna cuenta para el cuil %s", cuil)
-			return models.Account{}, fmt.Errorf("no se encontró ninguna cuenta para el cuil %s", cuil)
+			log.Printf("No account was found for the cuil: %s", cuil)
+			return models.Account{}, fmt.Errorf("no se encontró niNo account was found for the cuil:nguna cuenta para el cuil %s", cuil)
 		}
-		log.Printf("Error al buscar la cuenta para el cuil %s en MongoDB: %v", cuil, err)
-		return models.Account{}, fmt.Errorf("error al buscar la cuenta para el cuil %s en MongoDB: %v", cuil, err)
+		log.Printf("Error looking up the account for the %s quantile in MongoDB: %v", cuil, err)
+		return models.Account{}, fmt.Errorf("error looking up the account for the %s quantile in MongoDB: %v", cuil, err)
 	}
 
 	return account, nil
