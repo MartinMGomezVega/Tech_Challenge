@@ -42,7 +42,9 @@ func SendEmail(ctx context.Context, request events.APIGatewayProxyRequest) model
 		r.Message = err.Error()
 		return r
 	}
+
 	log.Printf("User: %s %s", account.AccountInfo.Name, account.AccountInfo.Surname)
+	log.Printf("email: %s", account.AccountInfo.Email)
 	log.Printf("Number of transactions: %v", len(account.Transactions))
 
 	// Armar el resumen del email
