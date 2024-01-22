@@ -75,20 +75,21 @@ func SendEmail(ctx context.Context, request events.APIGatewayProxyRequest) model
 	}
 
 	// info extra
-	bodyEmail += "\n\n\n¡Si surgen preguntas, estamos aquí para ayudarte!\nExplora nuestras Preguntas Frecuentes en <a href=\"www.storicard.com/preguntas-frecuentes\">www.storicard.com/preguntas-frecuentes</a> para obtener respuestas rápidas y útiles. ¡Tu tranquilidad es nuestra prioridad!\n"
-	bodyEmail += "Conoce más sobre nosotros en nuestro sitio web: <a href=\"www.storicard.com\">www.storicard.com</a>\n\n"
+	bodyEmail += "\n\n\n¡Si surgen preguntas, estamos aquí para ayudarte!\nExplora nuestras Preguntas Frecuentes en www.storicard.com/preguntas-frecuentes para obtener respuestas rápidas y útiles. ¡Tu tranquilidad es nuestra prioridad!\n"
+	bodyEmail += "Conoce más sobre nosotros en nuestro sitio web: www.storicard.com\n\n"
 
 	// Add the image to the background of the email
-	bodyEmail += `<a href="https://www.storicard.com/"><img src="https://upload.wikimedia.org/wikipedia/commons/b/b0/Stori_Logo_2023.svg" alt="Texto Alternativo"></a>`
+	bodyEmail += `<img src="../img/stori_logo.png" style="position: fixed; bottom: 0; right: 0; width: 100%; height: auto;">`
+	bodyEmail += "\n" + `<a href="https://www.storicard.com/"><img src="https://upload.wikimedia.org/wikipedia/commons/b/b0/Stori_Logo_2023.svg" alt="Texto Alternativo"></a>`
 
 	// Email subject
 	subject := "Stori - Resumen"
 
 	m := gomail.NewMessage()
 	m.SetHeader("From", "valkiria.jobs@gmail.com")
-	m.SetHeader("To", account.AccountInfo.Email)
+	m.SetHeader("To", account.AccountInfo.Email) // Se le envía al usuario
 	m.SetHeader("Subject", subject)
-	m.SetBody("text/html", bodyEmail) // Cambiado a "text/html"
+	m.SetBody("text/html", bodyEmail)
 
 	if err := d.DialAndSend(m); err != nil {
 		fmt.Println("Error DialAndSend: ", err.Error())
