@@ -24,6 +24,7 @@ type readSeeker struct {
 func (rs *readSeeker) Seek(offset int64, whence int) (int64, error) {
 	return 0, nil
 }
+
 func UploadTransactionFile(ctx context.Context, request events.APIGatewayProxyRequest) models.ResposeAPI {
 	log.Println("Saving file...")
 	var r models.ResposeAPI
@@ -61,6 +62,9 @@ func UploadTransactionFile(ctx context.Context, request events.APIGatewayProxyRe
 		}
 		if err != io.EOF {
 			if p.FileName() != "" {
+				uploadedFilename := p.FileName()
+				log.Println("Uploaded Filename: " + uploadedFilename)
+
 				buf := bytes.NewBuffer(nil)
 				if _, err := io.Copy(buf, p); err != nil {
 					r.Status = 500
@@ -102,6 +106,6 @@ func UploadTransactionFile(ctx context.Context, request events.APIGatewayProxyRe
 	}
 
 	r.Status = 200
-	r.Message = "Image Upload OK"
+	r.Message = "csv upload OK"
 	return r
 }
