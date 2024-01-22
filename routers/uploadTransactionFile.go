@@ -27,9 +27,11 @@ func UploadTransactionFile(ctx context.Context, request events.APIGatewayProxyRe
 
 	// Obtener la ruta del directorio raíz de la tarea de Lambda
 	rootDir := os.Getenv("LAMBDA_TASK_ROOT")
+	log.Println("rootDir: " + rootDir)
 
 	// Construir la ruta completa al archivo dentro de la carpeta 'files'
 	filePath := filepath.Join(rootDir, "files", "20417027050.csv")
+	log.Println("filePath: " + filePath)
 
 	config, err := config.LoadDefaultConfig(context.TODO(), config.WithRegion("us-east-1"))
 	if err != nil {
