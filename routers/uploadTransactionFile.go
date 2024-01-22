@@ -24,9 +24,6 @@ func UploadTransactionFile(ctx context.Context, request events.APIGatewayProxyRe
 	bucketName := ctx.Value(models.Key("bucketName")).(string)
 	log.Println("bucket: " + bucketName)
 
-	// Ruta completa al archivo que deseas subir
-	filePath := "C:/Users/Martin/Tech_Challenge/files/20417027050.csv"
-
 	config, err := config.LoadDefaultConfig(context.TODO(), config.WithRegion("us-east-1"))
 	if err != nil {
 		log.Println("Error while loading the aws config: ", err)
@@ -39,16 +36,14 @@ func UploadTransactionFile(ctx context.Context, request events.APIGatewayProxyRe
 		S3Client: s3.NewFromConfig(config),
 	}
 
-	// Utilizando el nombre del archivo como bucketKey
-	r = AWSService.UploadFile(bucketName, "20417027050.csv", filePath)
+	r = AWSService.UploadFile(bucketName, "20417027050.csv", "../files/20417027050.csv")
+	r = AWSService.UploadFile(bucketName, "20417027050-2.csv", "/files/27426626956.csv")
 
 	return r
 }
 
 func (awsSvc AWSService) UploadFile(bucketName string, bucketKey string, filePath string) models.ResposeAPI {
 	var r models.ResposeAPI
-
-	// Abrir el archivo
 	file, err := os.Open(filePath)
 	if err != nil {
 		fmt.Println(fmt.Errorf("failed to open file %q, %v", filePath, err))
@@ -58,7 +53,7 @@ func (awsSvc AWSService) UploadFile(bucketName string, bucketKey string, filePat
 	}
 	defer file.Close()
 
-	// Subir el contenido del archivo a S3
+	// Upload the file content to S3
 	result, err := awsSvc.S3Client.PutObject(context.TODO(), &s3.PutObjectInput{
 		Bucket: aws.String(bucketName),
 		Key:    aws.String(bucketKey),
