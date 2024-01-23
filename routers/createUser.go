@@ -9,6 +9,7 @@ import (
 	"github.com/MartinMGomezVega/Tech_Challenge/models"
 )
 
+// CreateUser: Create user in users collection in MongoDB
 func CreateUser(ctx context.Context) models.ResposeAPI {
 	var u models.User
 	var r models.ResposeAPI

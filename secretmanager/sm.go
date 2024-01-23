@@ -11,6 +11,7 @@ import (
 	"github.com/MartinMGomezVega/Tech_Challenge/models"
 )
 
+// GetSecretValue: Retrieves sensitive information stored in AWS Secrets Manager using the name of the provided secret
 func GetSecret(secretName string) (models.Secret, error) {
 	var datosSecret models.Secret
 	fmt.Println(" > The secret is  " + secretName)

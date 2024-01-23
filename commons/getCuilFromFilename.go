@@ -5,7 +5,7 @@ import (
 	"strings"
 )
 
-// Función para obtener el cuil del nombre del archivo sin la extensión .csv
+// GetCuilFromFilename: Gets the filename quantile without the .csv file extension.
 func GetCuilFromFilename(filename string) string {
 	base := filepath.Base(filename)
 	cuil := strings.TrimSuffix(base, filepath.Ext(base))

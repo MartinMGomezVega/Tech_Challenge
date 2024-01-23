@@ -12,7 +12,7 @@ import (
 var MongoCN *mongo.Client
 var DatabaseName string
 
-// ConectBD: Conexion a la base de datos
+// ConectBD: Database connection
 func ConectBD(ctx context.Context) error {
 	user := ctx.Value(models.Key("user")).(string)
 	passwd := ctx.Value(models.Key("password")).(string)
@@ -29,7 +29,7 @@ func ConectBD(ctx context.Context) error {
 	err = client.Ping(context.TODO(), nil)
 	if err != nil {
 		fmt.Println(err.Error())
-		client.Disconnect(context.TODO()) // Cerrar la conexión en caso de error
+		client.Disconnect(context.TODO())
 		return err
 	}
 

@@ -11,7 +11,7 @@ import (
 	"go.mongodb.org/mongo-driver/mongo"
 )
 
-// GetAccountByCuil: Get full account by account number.
+// GetAccountByCuil: Gets the full account by cuil.
 func GetAccountByCuil(cuil string) (models.Account, error) {
 	ctx, cancel := context.WithTimeout(context.Background(), 15*time.Second)
 	defer cancel()

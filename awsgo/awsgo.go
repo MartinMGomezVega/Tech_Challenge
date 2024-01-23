@@ -11,6 +11,7 @@ var Ctx context.Context
 var Cfg aws.Config
 var err error
 
+// InitialiseAWS: Initialises the AWS configuration for the application.
 func InitialiseAWS() {
 	Ctx = context.TODO()
 	Cfg, err = config.LoadDefaultConfig(Ctx, config.WithDefaultRegion("us-east-1"))

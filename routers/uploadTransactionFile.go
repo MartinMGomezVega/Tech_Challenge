@@ -32,6 +32,7 @@ func (rs *readSeeker) Seek(offset int64, whence int) (int64, error) {
 	return 0, nil
 }
 
+// UploadTransactionFile: Save the csv file in the s3 bucket of aws
 func UploadTransactionFile(ctx context.Context, request events.APIGatewayProxyRequest) models.ResposeAPI {
 	log.Println("Saving file...")
 	var r models.ResposeAPI
