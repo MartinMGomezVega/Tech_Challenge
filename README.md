@@ -112,8 +112,7 @@ Una vez completado este paso, estarás listo para proceder al Paso 3 y obtener e
 
 ![Imagen del registro cargado en MongoDB](img/mongo-transactions.PNG)
 
-Archivo para enviar:
-![Archivo para enviar desde el postman](files/20417027050.csv)
+![Archivo csv para enviar desde el postman](files/20417027050.csv)
 
 ### Paso 3: Envío del resumen de cuenta por correo electrónico
 
