@@ -114,7 +114,9 @@ Para cargar el archivo de transacciones, sigue estos pasos:
 Este proceso cargará el archivo de transacciones en el sistema. Internamente, el sistema almacenará el archivo en el bucket S3 llamado "challenge" y registrará los detalles de las transacciones en la colección "transactions".
 Una vez completado este paso, estarás listo para proceder al Paso 3 y obtener el resumen de transacciones.
 
-<!-- Agregar imagen del archivo subido correctamente -->
+![Ejemplo en postman](img/postman-uploadTransactionFile.PNG)
+
+![Ejemplo en bucket s3](img/bucket-s3.PNG)
 
 ![Imagen del registro cargado en MongoDB](img/mongo-transactions.PNG)
 
