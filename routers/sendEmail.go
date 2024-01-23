@@ -78,8 +78,8 @@ func SendEmail(ctx context.Context, request events.APIGatewayProxyRequest) model
 	averageAmounts := commons.CalculateAverageAmounts(account.Transactions)
 
 	// Add the average amounts to the body of the email
-	bodyEmail += fmt.Sprintf("<br>Importe medio del débito: %.2f<br>", averageAmounts["Debit_August"]) // Reemplazar "August" con el mes actual
-	bodyEmail += fmt.Sprintf("Importe medio del abono: %.2f<br>", averageAmounts["Credit_August"])     // Reemplazar "August" con el mes actual
+	bodyEmail += fmt.Sprintf("\nImporte medio del débito: %.2f\n", averageAmounts["Debit"])
+	bodyEmail += fmt.Sprintf("Importe medio del abono: %.2f\n", averageAmounts["Credit"])
 
 	// info extra
 	bodyEmail += "<br><br>¡Si surgen preguntas, estamos aquí para ayudarte! <br>Explora nuestras Preguntas Frecuentes en <a href='http://www.storicard.com/preguntas-frecuentes'>www.storicard.com/preguntas-frecuentes</a> para obtener respuestas rápidas y útiles. ¡Tu tranquilidad es nuestra prioridad!<br>"
