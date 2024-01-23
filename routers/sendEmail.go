@@ -52,7 +52,7 @@ func SendEmail(ctx context.Context, request events.APIGatewayProxyRequest) model
 
 	// Calculate the total number of transactions for each month.
 	totalBalance := commons.CalculateTotalBalance(account.Transactions)
-	log.Printf("Total balance: $%v", totalBalance)
+	log.Printf("Total balance: $%.2f", totalBalance)
 
 	// Set up the email
 	d := gomail.NewDialer("smtp.gmail.com", 587, "valkiria.jobs@gmail.com", "zzmp qkxj nmas kubm")
@@ -78,8 +78,8 @@ func SendEmail(ctx context.Context, request events.APIGatewayProxyRequest) model
 	averageAmounts := commons.CalculateAverageAmounts(account.Transactions)
 
 	// Add the average amounts to the body of the email
-	bodyEmail += fmt.Sprintf("\nImporte medio del débito: %.2f\n", averageAmounts["Debit"])
-	bodyEmail += fmt.Sprintf("Importe medio del abono: %.2f\n", averageAmounts["Credit"])
+	bodyEmail += fmt.Sprintf("<br>Importe medio del débito: $%.2f <br>", averageAmounts["Debit"])
+	bodyEmail += fmt.Sprintf("Importe medio del abono: $%.2f <br>", averageAmounts["Credit"])
 
 	// info extra
 	bodyEmail += "<br><br>¡Si surgen preguntas, estamos aquí para ayudarte! <br>Explora nuestras Preguntas Frecuentes en <a href='http://www.storicard.com/preguntas-frecuentes'>www.storicard.com/preguntas-frecuentes</a> para obtener respuestas rápidas y útiles. ¡Tu tranquilidad es nuestra prioridad!<br>"
@@ -88,7 +88,7 @@ func SendEmail(ctx context.Context, request events.APIGatewayProxyRequest) model
 	// Add the image to the background of the email
 	bodyEmail += `<br><img src="https://upload.wikimedia.org/wikipedia/commons/b/b0/Stori_Logo_2023.svg" alt="stori" style="width: 30%; height: auto;">`
 
-	// Create the CSV file with the summary
+	// Attach csv file from the s3 bucket
 
 	// Email subject
 	subject := "Stori - Resumen"
