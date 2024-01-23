@@ -14,7 +14,6 @@ import (
 	"github.com/MartinMGomezVega/Tech_Challenge/bd"
 	"github.com/MartinMGomezVega/Tech_Challenge/commons"
 	"github.com/MartinMGomezVega/Tech_Challenge/models"
-	"go.mongodb.org/mongo-driver/bson"
 
 	"github.com/aws/aws-lambda-go/events"
 	"github.com/aws/aws-sdk-go/aws"
@@ -110,17 +109,14 @@ func UploadTransactionFile(ctx context.Context, request events.APIGatewayProxyRe
 				}
 				log.Println("After uploading to S3")
 
-				// Define the filter to search by account number
-				filter := bson.M{"cuil": cuil}
-				collection := "users"
 				// Obtain user account information to store in the transaction collection
-				user, err := bd.GetAccountByCuil(cuil, filter, collection)
+				user, err := bd.GetUser(cuil)
 				if err != nil {
 					r.Status = 400
 					r.Message = err.Error()
 					return r
 				}
-				log.Printf("User: %s %s", user.AccountInfo.Name, user.AccountInfo.Surname)
+				log.Printf("User's full name: %s %s", user.Name, user.Surname)
 
 				// Parse the contents of the CSV file
 				transactions, err := commons.ParseCSVContent(buf)
@@ -132,8 +128,15 @@ func UploadTransactionFile(ctx context.Context, request events.APIGatewayProxyRe
 				log.Printf("Number of transactions: %v", len(transactions))
 
 				// Create an Account document with account and transaction information
+				accountInfoUser := models.AccountInfo{
+					Name:    user.Name,
+					Surname: user.Surname,
+					Cuil:    user.Cuil,
+					Email:   user.Email,
+				}
+
 				account := models.Account{
-					AccountInfo:  user.AccountInfo,
+					AccountInfo:  accountInfoUser,
 					Transactions: transactions,
 				}
 

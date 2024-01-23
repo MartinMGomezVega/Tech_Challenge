@@ -11,7 +11,6 @@ import (
 	"github.com/MartinMGomezVega/Tech_Challenge/commons"
 	"github.com/MartinMGomezVega/Tech_Challenge/models"
 	"github.com/aws/aws-lambda-go/events"
-	"go.mongodb.org/mongo-driver/bson"
 	"gopkg.in/gomail.v2"
 )
 
@@ -39,11 +38,8 @@ func SendEmail(ctx context.Context, request events.APIGatewayProxyRequest) model
 	}
 	log.Printf("Cuil received: %s", cuil)
 
-	// Define the filter to search by account number
-	filter := bson.M{"accountInfo.cuil": cuil}
-	collection := "transactions"
 	// Get transactions from MongoDB
-	account, err := bd.GetAccountByCuil(cuil, filter, collection)
+	account, err := bd.GetAccountByCuil(cuil)
 	if err != nil {
 		log.Println("Error getting transactions from MongoDB:", err)
 		r.Status = 500

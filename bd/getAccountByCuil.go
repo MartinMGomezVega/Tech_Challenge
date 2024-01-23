@@ -7,17 +7,20 @@ import (
 	"time"
 
 	"github.com/MartinMGomezVega/Tech_Challenge/models"
-	"go.mongodb.org/mongo-driver/bson/primitive"
+	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/mongo"
 )
 
 // GetAccountByCuil: Gets the full account by cuil.
-func GetAccountByCuil(cuil string, filter primitive.M, collectionName string) (models.Account, error) {
+func GetAccountByCuil(cuil string) (models.Account, error) {
 	ctx, cancel := context.WithTimeout(context.Background(), 15*time.Second)
 	defer cancel()
 
 	db := MongoCN.Database(DatabaseName)
-	col := db.Collection(collectionName)
+	col := db.Collection("transactions")
+
+	// Define the filter to search by account number
+	filter := bson.M{"accountInfo.cuil": cuil}
 
 	var account models.Account
 	err := col.FindOne(ctx, filter).Decode(&account)
