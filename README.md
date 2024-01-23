@@ -50,7 +50,7 @@ La estructura del repositorio es la siguiente:
 
 #### Carpeta `bd/`
 
-- **`CheckUserExists.go`**: Chequea si el usuario existe en la coleccion users.
+- **`checkUserExists.go`**: Chequea si el usuario existe en la coleccion users.
 - **`conectionDB.go`**: Conexion a la base de datos.
 - **`getAccountByCuil.go`**: Obtiene la cuenta completa por cuil.
 - **`getUser.go`**: Obtiene el usuario de la coleccion users con el cuil.
@@ -64,7 +64,9 @@ La estructura del repositorio es la siguiente:
 ### Escenario con Cuenta Empresarial
 
 En un entorno empresarial con mayores recursos, expandiría la estructura para aprovechar servicios adicionales de AWS. Esto incluiría la implementación de una API Gateway privada que permita la creación de múltiples recursos, junto con la habilitación de diversas Lambdas para ejecutar el proceso de manera eficiente. La primera Lambda se dedicaría a la creación de usuarios, mientras que otra se encargaría de cargar archivos en un bucket S3 privado. Ambas Lambdas estarían vinculadas a la API Gateway.
+
 Adicionalmente, integraría una tercera Lambda que se activaría mediante eventos en el bucket S3, ejecutándose automáticamente al detectar la carga de un archivo. Esta Lambda reuniría información del cliente, identificando el CUIL a partir del nombre del archivo, y posteriormente enviaría un correo electrónico al usuario con un resumen detallado de la cuenta.
+
 En el proceso de gestión y provisión de recursos en la nube, optaría por utilizar Terraform y Terragrunt. Estas herramientas, ampliamente reconocidas en entornos de desarrollo y operaciones, facilitarían la automatización de la creación y gestión de infraestructuras en AWS. Con su ayuda, establecería la API Gateway, las Lambdas, las tablas en DynamoDB y el bucket en S3, garantizando que todos los servicios cuenten con los permisos necesarios para una operación segura y eficiente.
 
 ## Instrucciones de ejecución
