@@ -57,9 +57,9 @@ func SendEmail(ctx context.Context, request events.APIGatewayProxyRequest) model
 	// Set up the email
 	d := gomail.NewDialer("smtp.gmail.com", 587, "valkiria.jobs@gmail.com", "zzmp qkxj nmas kubm")
 
-	bodyEmail := fmt.Sprintf("¡Hola %s!\n", account.AccountInfo.Name)
-	bodyEmail += "Ya está disponible el resumen de tu cuenta.\n\n"
-	bodyEmail += fmt.Sprintf("\t"+"Saldo total: $%v\n", totalBalance)
+	bodyEmail := fmt.Sprintf("¡Hola %s!<br>", account.AccountInfo.Name)
+	bodyEmail += "Ya está disponible el resumen de tu cuenta.<br><br>"
+	bodyEmail += fmt.Sprintf("Saldo total: $%v<br>", totalBalance)
 
 	// Implement a cycle to iterate over months
 	transactionsByMonth := commons.CalculateTotalTransactionsByMonth(account.Transactions)
@@ -71,16 +71,16 @@ func SendEmail(ctx context.Context, request events.APIGatewayProxyRequest) model
 			r.Message = "Error DialAndSend: "
 			return r
 		}
-		bodyEmail += fmt.Sprintf("\tNúmero de transacciones en %s: %d\n", monthEsp, qtyTransactions)
+		bodyEmail += fmt.Sprintf("Número de transacciones en %s: %d<br>", monthEsp, qtyTransactions)
 	}
 
 	// info extra
-	bodyEmail += "\n\n\n¡Si surgen preguntas, estamos aquí para ayudarte!\nExplora nuestras Preguntas Frecuentes en www.storicard.com/preguntas-frecuentes para obtener respuestas rápidas y útiles. ¡Tu tranquilidad es nuestra prioridad!\n"
-	bodyEmail += "Conoce más sobre nosotros en nuestro sitio web: www.storicard.com\n\n"
+	bodyEmail += "<br><br><br>¡Si surgen preguntas, estamos aquí para ayudarte! <br>Explora nuestras Preguntas Frecuentes en www.storicard.com/preguntas-frecuentes para obtener respuestas rápidas y útiles. ¡Tu tranquilidad es nuestra prioridad!<br>"
+	bodyEmail += "Conoce más sobre nosotros en nuestro sitio web: www.storicard.com<br><br>"
 
 	// Add the image to the background of the email
-	bodyEmail += `<img src="../img/stori_logo.png" style="position: fixed; bottom: 0; right: 0; width: 100%; height: auto;">`
-	bodyEmail += "\n" + `<a href="https://www.storicard.com/"><img src="https://upload.wikimedia.org/wikipedia/commons/b/b0/Stori_Logo_2023.svg" alt="Texto Alternativo"></a>`
+	// bodyEmail += `<img src="../img/stori_logo.png" style="position: fixed; bottom: 0; right: 0; width: 100%; height: auto;">`
+	bodyEmail += `<br><a href="https://www.storicard.com/"><img src="https://upload.wikimedia.org/wikipedia/commons/b/b0/Stori_Logo_2023.svg" alt="Texto Alternativo"></a>`
 
 	// Email subject
 	subject := "Stori - Resumen"
