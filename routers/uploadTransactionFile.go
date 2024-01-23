@@ -71,6 +71,7 @@ func UploadTransactionFile(ctx context.Context, request events.APIGatewayProxyRe
 				cuil := commons.GetCuilFromFilename(uploadedFilename)
 				log.Printf("cuil: %s", cuil)
 
+				// Create the buffer and copy the content
 				buf := bytes.NewBuffer(nil)
 				if _, err := io.Copy(buf, p); err != nil {
 					r.Status = 500
@@ -117,6 +118,9 @@ func UploadTransactionFile(ctx context.Context, request events.APIGatewayProxyRe
 					return r
 				}
 				log.Printf("User's full name: %s %s", user.Name, user.Surname)
+
+				// Reset the position of the reader
+				buf.Reset()
 
 				// Parse the contents of the CSV file
 				transactions, err := commons.ParseCSVContent(buf)
