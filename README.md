@@ -69,6 +69,9 @@ Adicionalmente, integraría una tercera Lambda que se activaría mediante evento
 
 En el proceso de gestión y provisión de recursos en la nube, optaría por utilizar Terraform y Terragrunt. Estas herramientas, ampliamente reconocidas en entornos de desarrollo y operaciones, facilitarían la automatización de la creación y gestión de infraestructuras en AWS. Con su ayuda, establecería la API Gateway, las Lambdas, las tablas en DynamoDB y el bucket en S3, garantizando que todos los servicios cuenten con los permisos necesarios para una operación segura y eficiente.
 
+Al utilizar la cuenta gratuita de AWS, me he topado con algunos desafíos debido a los límites establecidos. Estos límites más bajos han generado problemas notables al intentar desarrollar proyectos más avanzados. En particular, me he enfrentado a restricciones en el almacenamiento y las solicitudes, lo que dificulta la escalabilidad de las aplicaciones.
+Servicios clave como Amazon S3 y Lambda han experimentado interrupciones debido a limitaciones en la cantidad de operaciones permitidas. Además, la conectividad limitada a servicios externos y el acceso restringido a la red han complicado la interacción con recursos fuera del entorno de AWS. Para superar estos desafíos, he tenido que estar atento a los límites y considerar la posibilidad de migrar a una cuenta de pago para un desarrollo más fluido y sin restricciones en la plataforma de AWS.
+
 ## Instrucciones de ejecución
 
 ### Paso 1: Crear el usuario
