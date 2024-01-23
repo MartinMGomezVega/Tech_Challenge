@@ -49,11 +49,6 @@ func downloadFromS3(ctx context.Context, svc *s3.Client, filename string) (*byte
 	}
 	defer obj.Body.Close()
 
-	// Check if the file is CSV
-	if obj.ContentType != nil && *obj.ContentType != "text/csv" {
-		return nil, fmt.Errorf("the file is not of type csv")
-	}
-
 	file, err := io.ReadAll(obj.Body)
 	if err != nil {
 		log.Println("Error reading file.")
