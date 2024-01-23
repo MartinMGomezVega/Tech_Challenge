@@ -89,6 +89,10 @@ En el proceso de gestión y provisión de recursos en la nube, optaría por util
 
 Este endpoint crea un usuario en la colección de MongoDB llamada "users". El CUIL se utiliza como identificador y se vincula al archivo que se cargará más adelante.
 
+![Ejemplo en postman](img/postman-createuser.PNG)
+
+![Imagen del registro cargado en MongoDB](img/mongo-users.PNG)
+
 ### Paso 2: Cargar archivo de transacciones
 
 Para cargar el archivo de transacciones, sigue estos pasos:
@@ -103,6 +107,13 @@ Para cargar el archivo de transacciones, sigue estos pasos:
 
 Este proceso cargará el archivo de transacciones en el sistema. Internamente, el sistema almacenará el archivo en el bucket S3 llamado "challenge" y registrará los detalles de las transacciones en la colección "transactions".
 Una vez completado este paso, estarás listo para proceder al Paso 3 y obtener el resumen de transacciones.
+
+<!-- Agregar imagen del archivo subido correctamente -->
+
+![Imagen del registro cargado en MongoDB](img/mongo-transactions.PNG)
+
+Archivo para enviar:
+![Archivo para enviar desde el postman](files/20417027050.csv)
 
 ### Paso 3: Envío del resumen de cuenta por correo electrónico
 
@@ -122,5 +133,9 @@ Para recibir el resumen de cuenta por correo electrónico, sigue estos pasos:
 
 Este proceso obtendrá la información del usuario asociada al cuil proporcionado. Luego, calculará el saldo total, el total de transacciones agrupadas por mes, el importe medio de débito y crédito. A continuación, armará un correo electrónico detallado y lo enviará desde la dirección de correo electrónico valkiria.jobs@gmail.com.
 El correo electrónico contendrá información adicional para mejorar la visualización, incluyendo la imagen de Stori y el archivo que cargaste en el Paso 2. Utilice mi correo personal que cree para mi tesis de Ingeniería informática.
+
+![Ejemplo en postman](img/postman-sendemail.PNG)
+
+![Imagen del mail que se recibe](img/email.PNG)
 
 ¡Con estos pasos, habrás completado el proceso! Si tienes alguna pregunta o encuentras algún problema, no dudes en contactarme.
