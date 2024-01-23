@@ -4,6 +4,7 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
+	"io"
 	"log"
 
 	"github.com/MartinMGomezVega/Tech_Challenge/bd"
@@ -89,6 +90,13 @@ func SendEmail(ctx context.Context, request events.APIGatewayProxyRequest) model
 	bodyEmail += `<br><img src="https://upload.wikimedia.org/wikipedia/commons/b/b0/Stori_Logo_2023.svg" alt="stori" style="width: 30%; height: auto;">`
 
 	// Attach csv file from the s3 bucket
+	csvFile, response := commons.GetTransactionFile(ctx, cuil)
+	if response != nil {
+		// Handle error
+		r.Status = response.Status
+		r.Message = response.Message
+		return r
+	}
 
 	// Email subject
 	subject := "Stori - Resumen"
@@ -98,6 +106,12 @@ func SendEmail(ctx context.Context, request events.APIGatewayProxyRequest) model
 	m.SetHeader("To", account.AccountInfo.Email) // Se le envía al usuario
 	m.SetHeader("Subject", subject)
 	m.SetBody("text/html", bodyEmail)
+
+	attachmentName := fmt.Sprintf("%s-resumen.csv", cuil)
+	m.Attach(attachmentName, gomail.SetCopyFunc(func(w io.Writer) error {
+		_, err := csvFile.WriteTo(w)
+		return err
+	}))
 
 	if err := d.DialAndSend(m); err != nil {
 		fmt.Println("Error DialAndSend: ", err.Error())
