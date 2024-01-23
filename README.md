@@ -10,7 +10,7 @@ Este proyecto consiste en una aplicación que procesa transacciones financieras 
 
 - Para ejecutar el código, sigue estos pasos:
 
-1. Accede a la API Gateway mediante Postman con el siguiente enlace: [Crear usuario](https://tnq2inp3d2.execute-api.us-east-1.amazonaws.com/prod/createUser).
+1. Accede a la API Gateway mediante Postman con el siguiente enlace: https://tnq2inp3d2.execute-api.us-east-1.amazonaws.com/prod/createUser
 2. En el cuerpo de la solicitud, proporciona un JSON con la información del usuario:
 
 ```json
@@ -28,7 +28,7 @@ Este endpoint crea un usuario en la colección de MongoDB llamada "users". El CU
 
 Para cargar el archivo de transacciones, sigue estos pasos:
 
-1. Accede a la API Gateway mediante Postman utilizando el siguiente enlace: [Cargar archivo](https://tnq2inp3d2.execute-api.us-east-1.amazonaws.com/prod/uploadTransactionFile)
+1. Accede a la API Gateway mediante Postman utilizando el siguiente enlace: https://tnq2inp3d2.execute-api.us-east-1.amazonaws.com/prod/uploadTransactionFile
 
 2. Selecciona la opción de `form-data` en el cuerpo de la solicitud para permitir la carga de archivos.
 
@@ -43,7 +43,7 @@ Una vez completado este paso, estarás listo para proceder al Paso 3 y obtener e
 
 Para recibir el resumen de cuenta por correo electrónico, sigue estos pasos:
 
-1. Accede a la API Gateway mediante Postman utilizando el siguiente enlace: [Enviar Resumen de Cuenta](https://tnq2inp3d2.execute-api.us-east-1.amazonaws.com/prod/sendEmail).
+1. Accede a la API Gateway mediante Postman utilizando el siguiente enlace: https://tnq2inp3d2.execute-api.us-east-1.amazonaws.com/prod/sendEmail
 
 2. En el cuerpo de la solicitud, proporciona un JSON con tu número de CUIL:
 
