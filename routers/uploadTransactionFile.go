@@ -122,23 +122,13 @@ func UploadTransactionFile(ctx context.Context, request events.APIGatewayProxyRe
 				}
 				log.Printf("User's full name: %s %s", user.Name, user.Surname)
 
-				// Crear un nuevo buffer para analizar el contenido del CSV
-				newBuf := bytes.NewBuffer(nil)
-				if _, err := io.Copy(newBuf, p); err != nil {
-					r.Status = 500
-					r.Message = err.Error()
-					return r
-				}
-
 				// Parse the contents of the CSV file
-				transactions, err := commons.ParseCSVContent(newBuf)
+				transactions, err := commons.ParseCSVContent(request)
 				if err != nil {
 					r.Status = 500
 					r.Message = err.Error()
 					return r
 				}
-				// Reset buffer after csv parsing
-				buf.Reset()
 				log.Printf("Number of transactions: %v", len(transactions))
 
 				// Create an Account document with account and transaction information
