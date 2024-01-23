@@ -61,6 +61,9 @@ La estructura del repositorio es la siguiente:
 
 - **`awsgo.go`**: Inicializa la configuración de AWS para la aplicación.
 
+La infraestructura del proyecto es la siguiente:
+![Infraestructura](img/infraestructura.PNG)
+
 ### Escenario con Cuenta Empresarial
 
 En un entorno empresarial con mayores recursos, expandiría la estructura para aprovechar servicios adicionales de AWS. Esto incluiría la implementación de una API Gateway privada que permita la creación de múltiples recursos, junto con la habilitación de diversas Lambdas para ejecutar el proceso de manera eficiente. La primera Lambda se dedicaría a la creación de usuarios, mientras que otra se encargaría de cargar archivos en un bucket S3 privado. Ambas Lambdas estarían vinculadas a la API Gateway.
