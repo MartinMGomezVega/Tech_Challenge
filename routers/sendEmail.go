@@ -74,12 +74,21 @@ func SendEmail(ctx context.Context, request events.APIGatewayProxyRequest) model
 		bodyEmail += fmt.Sprintf("Número de transacciones en %s: %d<br>", monthEsp, qtyTransactions)
 	}
 
+	// Calculating average debit and credit amounts
+	averageAmounts := commons.CalculateAverageAmounts(account.Transactions)
+
+	// Add the average amounts to the body of the email
+	bodyEmail += fmt.Sprintf("<br>Importe medio del débito: %.2f<br>", averageAmounts["Debit_August"]) // Reemplazar "August" con el mes actual
+	bodyEmail += fmt.Sprintf("Importe medio del abono: %.2f<br>", averageAmounts["Credit_August"])     // Reemplazar "August" con el mes actual
+
 	// info extra
-	bodyEmail += "<br><br><br>¡Si surgen preguntas, estamos aquí para ayudarte! <br>Explora nuestras Preguntas Frecuentes en <a href='http://www.storicard.com/preguntas-frecuentes'>www.storicard.com/preguntas-frecuentes</a> para obtener respuestas rápidas y útiles. ¡Tu tranquilidad es nuestra prioridad!<br>"
+	bodyEmail += "<br><br>¡Si surgen preguntas, estamos aquí para ayudarte! <br>Explora nuestras Preguntas Frecuentes en <a href='http://www.storicard.com/preguntas-frecuentes'>www.storicard.com/preguntas-frecuentes</a> para obtener respuestas rápidas y útiles. ¡Tu tranquilidad es nuestra prioridad!<br>"
 	bodyEmail += "Conoce más sobre nosotros en nuestro sitio web: <a href='http://www.storicard.com'>www.storicard.com</a><br><br>"
 
 	// Add the image to the background of the email
 	bodyEmail += `<br><img src="https://upload.wikimedia.org/wikipedia/commons/b/b0/Stori_Logo_2023.svg" alt="stori" style="width: 30%; height: auto;">`
+
+	// Create the CSV file with the summary
 
 	// Email subject
 	subject := "Stori - Resumen"
