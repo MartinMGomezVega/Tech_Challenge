@@ -4,14 +4,11 @@ import (
 	"bytes"
 	"context"
 	"encoding/base64"
-	"encoding/csv"
 	"fmt"
 	"io"
 	"log"
-	"math"
 	"mime"
 	"mime/multipart"
-	"strconv"
 	"strings"
 
 	"github.com/MartinMGomezVega/Tech_Challenge/bd"
@@ -37,12 +34,6 @@ func UploadTransactionFile(ctx context.Context, request events.APIGatewayProxyRe
 	log.Println("Saving file...")
 	var r models.ResposeAPI
 	r.Status = 400
-
-	bucket := aws.String(ctx.Value(models.Key("bucketName")).(string))
-	log.Println("bucket: " + *bucket)
-
-	filename := "files/" + "20417027050" + ".csv"
-	log.Println("filename: " + filename)
 
 	mediaType, params, err := mime.ParseMediaType(request.Headers["Content-Type"])
 	if err != nil {
@@ -71,10 +62,14 @@ func UploadTransactionFile(ctx context.Context, request events.APIGatewayProxyRe
 		if err != io.EOF {
 			if p.FileName() != "" {
 				uploadedFilename := p.FileName()
-				log.Println("Uploaded Filename: " + uploadedFilename)
+				log.Printf("Uploaded Filename: %s", uploadedFilename)
+
+				filename := fmt.Sprintf("files/%s", uploadedFilename)
+				log.Printf("filename: %s", filename)
 
 				// Get the filename quantile without the .csv extension
 				cuil := commons.GetCuilFromFilename(uploadedFilename)
+				log.Printf("cuil: %s", cuil)
 
 				buf := bytes.NewBuffer(nil)
 				if _, err := io.Copy(buf, p); err != nil {
@@ -82,6 +77,7 @@ func UploadTransactionFile(ctx context.Context, request events.APIGatewayProxyRe
 					r.Message = err.Error()
 					return r
 				}
+
 				sess, err := session.NewSession(&aws.Config{
 					Region: aws.String("us-east-1")},
 				)
@@ -93,21 +89,24 @@ func UploadTransactionFile(ctx context.Context, request events.APIGatewayProxyRe
 					return r
 				}
 
+				bucket := ctx.Value(models.Key("bucketName")).(string)
+				log.Printf("bucket: %s", bucket)
+
 				log.Println("Before uploading to S3")
 				uploader := s3manager.NewUploader(sess)
 				_, err = uploader.Upload(&s3manager.UploadInput{
-					Bucket: bucket,
+					Bucket: aws.String(bucket),
 					Key:    aws.String(filename),
 					Body:   &readSeeker{buf},
 				})
-				log.Println("After uploading to S3")
 
 				if err != nil {
-					log.Println("Error uploading the file to the bucket: " + *bucket)
+					log.Printf("Error uploading the file to the bucket: %s", bucket)
 					r.Status = 500
 					r.Message = err.Error()
 					return r
 				}
+				log.Println("After uploading to S3")
 
 				// Get the email
 				user, err := bd.GetUser(cuil)
@@ -116,16 +115,18 @@ func UploadTransactionFile(ctx context.Context, request events.APIGatewayProxyRe
 					r.Message = err.Error()
 					return r
 				}
+				log.Printf("User's full name: %s %s", user.AccountInfo.Name, user.AccountInfo.Surname)
 
-				// Parsear el contenido del archivo CSV
-				transactions, err := parseCSVContent(buf)
+				// Parse the contents of the CSV file
+				transactions, err := commons.ParseCSVContent(buf)
 				if err != nil {
 					r.Status = 500
 					r.Message = err.Error()
 					return r
 				}
+				log.Printf("Number of transactions: %v", len(transactions))
 
-				// Crear un documento Account con la información de la cuenta y las transacciones
+				// Create an Account document with account and transaction information
 				account := models.Account{
 					AccountInfo:  user.AccountInfo,
 					Transactions: transactions,
@@ -134,12 +135,13 @@ func UploadTransactionFile(ctx context.Context, request events.APIGatewayProxyRe
 				// After uploading to S3, store in MongoDB
 				_, status, err := bd.StoreInMongoDB(account)
 				if err != nil {
-					log.Println("Error storing in MongoDB:", err)
+					log.Println("Error storing in MongoDB: ", err)
 					r.Status = 500
 					r.Message = err.Error()
 					return r
 				}
 
+				log.Printf("Upload status of the file to MongoDB: %v", status)
 				if !status {
 					r.Message = "Failed to insert user record."
 					log.Println(r.Message)
@@ -157,92 +159,4 @@ func UploadTransactionFile(ctx context.Context, request events.APIGatewayProxyRe
 	r.Status = 200
 	r.Message = "csv upload OK"
 	return r
-}
-
-func parseCSVContent(reader io.Reader) ([]models.Transaction, error) {
-	var transactions []models.Transaction
-
-	// Create a CSV reader
-	csvReader := csv.NewReader(reader)
-
-	// Read the first line to get column names
-	columns, err := csvReader.Read()
-	if err != nil {
-		log.Println("Error reading CSV header:", err)
-		return nil, err
-	}
-
-	// Map column names to indexes
-	columnIndex := map[string]int{
-		"Id":          -1,
-		"Date":        -1,
-		"Transaction": -1,
-	}
-
-	for i, colName := range columns {
-		columnIndex[colName] = i
-	}
-
-	// Read the remaining rows of the CSV
-	for {
-		record, err := csvReader.Read()
-		if err == io.EOF {
-			break
-		} else if err != nil {
-			log.Println("Error reading CSV:", err)
-			return nil, err
-		}
-
-		// Get column values by name
-		id, err := strconv.Atoi(record[columnIndex["Id"]])
-		if err != nil {
-			log.Println("Error parsing ID:", err)
-			return nil, err
-		}
-
-		date := record[columnIndex["Date"]]
-		transaction := record[columnIndex["Transaction"]]
-
-		// parse the transaction and get the amount and the method
-		amount, method, err := parseTransaction(transaction)
-		if err != nil {
-			log.Println("Error parsing Transaction:", err)
-			return nil, err
-		}
-
-		// Create a transaction and add it to the list
-		transactionObj := models.Transaction{
-			ID:     id,
-			Date:   date,
-			Amount: amount,
-			Method: method,
-		}
-		transactions = append(transactions, transactionObj)
-	}
-
-	return transactions, nil
-}
-
-// parseTransaction: parse the transaction and get the amount and the method
-func parseTransaction(transaction string) (float64, string, error) {
-	var amount float64
-	var method string
-
-	// Get the amount of the transaction
-	if _, err := fmt.Sscanf(transaction, "%f", &amount); err != nil {
-		log.Println("Error parsing Transaction:", err)
-		return 0, "", err
-	}
-
-	// All amounts must be positive
-	amount = math.Abs(amount)
-
-	// Determine the method(Credit + o Debit -negativo)
-	if strings.HasPrefix(transaction, "-") {
-		method = "-"
-	} else {
-		method = "+"
-	}
-
-	return amount, method, nil
 }
