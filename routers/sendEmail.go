@@ -75,11 +75,10 @@ func SendEmail(ctx context.Context, request events.APIGatewayProxyRequest) model
 	}
 
 	// info extra
-	bodyEmail += "<br><br><br>¡Si surgen preguntas, estamos aquí para ayudarte! <br>Explora nuestras Preguntas Frecuentes en <a href='www.storicard.com/preguntas-frecuentes'>www.storicard.com/preguntas-frecuentes</a> para obtener respuestas rápidas y útiles. ¡Tu tranquilidad es nuestra prioridad!<br>"
-	bodyEmail += "Conoce más sobre nosotros en nuestro sitio web: <a href='www.storicard.com'>www.storicard.com</a><br><br>"
+	bodyEmail += "<br><br><br>¡Si surgen preguntas, estamos aquí para ayudarte! <br>Explora nuestras Preguntas Frecuentes en <a href='http://www.storicard.com/preguntas-frecuentes'>www.storicard.com/preguntas-frecuentes</a> para obtener respuestas rápidas y útiles. ¡Tu tranquilidad es nuestra prioridad!<br>"
+	bodyEmail += "Conoce más sobre nosotros en nuestro sitio web: <a href='http://www.storicard.com'>www.storicard.com</a><br><br>"
 
 	// Add the image to the background of the email
-	// bodyEmail += `<img src="../img/stori_logo.png" style="position: fixed; bottom: 0; right: 0; width: 100%; height: auto;">`
 	bodyEmail += `<br><img src="https://upload.wikimedia.org/wikipedia/commons/b/b0/Stori_Logo_2023.svg" alt="stori" style="width: 30%; height: auto;">`
 
 	// Email subject
