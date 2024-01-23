@@ -13,6 +13,7 @@ func ParseCSVContent(reader io.Reader) ([]models.Transaction, error) {
 	var transactions []models.Transaction
 
 	// Create a CSV reader
+	log.Println("Create a CSV reader")
 	csvReader := csv.NewReader(reader)
 
 	// Read the first line to get column names
@@ -21,6 +22,7 @@ func ParseCSVContent(reader io.Reader) ([]models.Transaction, error) {
 		log.Println("Error reading CSV header:", err)
 		return nil, err
 	}
+	log.Printf("Number of columns: %v", len(columns))
 
 	// Map column names to indexes
 	columnIndex := map[string]int{
@@ -34,9 +36,11 @@ func ParseCSVContent(reader io.Reader) ([]models.Transaction, error) {
 	}
 
 	// Read the remaining rows of the CSV
+	log.Println("Read the remaining rows of the CSV")
 	for {
 		record, err := csvReader.Read()
 		if err == io.EOF {
+			log.Println("Error: ", err)
 			break
 		} else if err != nil {
 			log.Println("Error reading CSV:", err)
